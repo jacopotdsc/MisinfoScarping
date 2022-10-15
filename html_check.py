@@ -82,7 +82,7 @@ def get_claimReviewed_scheme_in_html_code(file_name):
   try:
     html_code = open(file_name,'r',errors="ignore")
   except:
-    print("error to open: " + str(filename) )
+    print("html_check.get_claimReviewed_scheme_in_html_code(file_name) -> error to open: " + str(filename) )
 
   # loop on each line of the code, to find a possible claimReviewed scheme
   my_json = []

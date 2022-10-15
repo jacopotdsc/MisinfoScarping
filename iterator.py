@@ -1,14 +1,19 @@
 from msilib.schema import Directory
 import os
 from pickle import GLOBAL
+from tkinter.tix import DirList
 import html_check as hc
+from time import sleep
 
 
 #### GLOBAL VARIABLE
 GLOBAL_DIRECTORY1 = "C:\\Users\\pc\\Desktop\\dataset thesys project" 
 GLOBAL_DIRECTORY2 = "C:\\My Web Sites\\factanews\\facta.news" 
+GLOBAL_DIRECTORY3 = "C:\\My Web Sites\\factanews"
+GLOBAL_DIRECTORY4 = "C:\\misinfo"    # biggest folder: error
 
-USE_DIRECTORY = GLOBAL_DIRECTORY1
+# set this variabile to choose to path to analize
+USE_DIRECTORY = GLOBAL_DIRECTORY4
 
 AUXLIARY_FOR_FORMAT = 0
 HTML_EXAMINATED = 0
@@ -20,8 +25,9 @@ def increment_html_examinated():
     HTML_EXAMINATED = HTML_EXAMINATED + 1
     AUXLIARY_FOR_FORMAT = AUXLIARY_FOR_FORMAT + 1
 
-    if AUXLIARY_FOR_FORMAT % 100 == 0:
+    if AUXLIARY_FOR_FORMAT % 1000 == 0:
         print("-- html file examinated until now: " + str(HTML_EXAMINATED)) 
+        sleep(0.5)
 
 
 html_array = []
@@ -29,7 +35,6 @@ html_array = []
 def iterate_on_folders(directory):
 
     dir_list = os.listdir(directory)
-
     for filename in dir_list:
 
         # analize html
@@ -40,7 +45,7 @@ def iterate_on_folders(directory):
            increment_html_examinated()
 
 
-        elif str(filename).find(".") == -1: # folder's name doesn't have a "." 
+        elif str(filename).find(".") != 1: # file extension have one ".", it is correct? 
             new_path = str(directory) + "\\" + filename
             #print(new_path)
 
@@ -64,7 +69,6 @@ def create_csv(data_array):
     my_file.write("json,lang\n")
 
     for data in data_array:
-        print(type(data[0]))
 
         for j in data[0]:
             my_file.write(str(j) + "," + data[1])
@@ -73,8 +77,7 @@ def create_csv(data_array):
     my_file.close()
 
 
-
 iterate_on_folders(USE_DIRECTORY)
-hc.html_array_print(html_array)
-print("\ntotal html file examinated: " + str(HTML_EXAMINATED))
+#hc.html_array_print(html_array)
 create_csv(html_array)
+print("\ntotal html file examinated: " + str(HTML_EXAMINATED))
