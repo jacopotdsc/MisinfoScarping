@@ -1,9 +1,10 @@
+from fileinput import filename
 from bs4 import BeautifulSoup
 import urllib
 import re
 import json
-from textblob import TextBlob
-import langid
+from textblob import TextBlob # NOT USED
+import langid # NOT USED
 
 
 ##### VARIABLE DEBUG #####
@@ -24,7 +25,6 @@ LANG_KEYWORD = ["html lang"]
 
 
 ##### FUNCTION TO CHECK FOR JSON #####
-
 
 # extrace language of page
 def extract_language(line):
@@ -69,10 +69,20 @@ def check_if_is_json(my_json, keyword_list, line):
   return json_found
 
 
+#### MODIFICARE L'ORDINE, DAL PIU PROBABILE AL MENO PROBABILE
+#### LEVARE IL BREAK, PERCHè MAGARI CI SONO DEI CASI IN CUI NON
+#### SCANNERIZZA MAI QUELLO PER LA LINGUA
+#### AGGIUNGERE UNA VARIABILE DI CHECK PER EVITARE CIò
+
 # take all possible claimReviewed scheme
 def get_claimReviewed_scheme_in_html_code(file_name):
   
-  html_code = open(file_name,'r',errors="ignore")
+  html_code = ''
+
+  try:
+    html_code = open(file_name,'r',errors="ignore")
+  except:
+    print("error to open: " + str(filename) )
 
   # loop on each line of the code, to find a possible claimReviewed scheme
   my_json = []
@@ -102,16 +112,11 @@ def get_claimReviewed_scheme_in_html_code(file_name):
   return (my_json, language)
 
 
-def main(): 
-  result1 = get_claimReviewed_scheme_in_html_code("gasdotto.html")
-  result2 = get_claimReviewed_scheme_in_html_code("confine_russia_finlandia.html")
-
-  result = []
-  result.append(result1)
-  result.append(result2)
+# Take an array with entry < json_file, language > given by get_claimReviewed_scheme_in_html_code(file_name)
+def html_array_print(html_array):
 
   # r-tuple: < json_list, language >, can be present more than one json!
-  for r in result:
+  for r in html_array:
     json_list = r[0]
     language = r[1]
 
@@ -123,9 +128,29 @@ def main():
       print("language: " + language)
 
       for j in json_list:
-        print("my_json:")
-        print(type(j))
+        print("my_json: " + str( type( j ) ) )
+        print(j)
     
-      
 
-main()
+# return a pair < json_file, language >
+def get_json(filename, print_result = False):
+  result = get_claimReviewed_scheme_in_html_code(filename)
+  
+  if print_result == True:
+    html_array_print([result])
+
+  return result
+
+
+
+
+'''
+result1 = get_claimReviewed_scheme_in_html_code("gasdotto.html")
+result2 = get_claimReviewed_scheme_in_html_code("confine_russia_finlandia.html")
+
+result = []
+result.append(result1)
+result.append(result2)
+
+main(result)
+'''
