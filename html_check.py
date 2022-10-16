@@ -1,3 +1,4 @@
+from array import array
 from fileinput import filename
 from bs4 import BeautifulSoup
 import urllib
@@ -9,7 +10,7 @@ import langid # NOT USED
 
 ##### VARIABLE DEBUG #####
 KEYWORD_FOUND_DEBUG = False   # used for print keyword found. to understand why a json is extracted
-PRINT_ERROR_READY_HTML = True # show what filemy program wasn't able to open
+PRINT_ERROR_READY_HTML = False # show what filemy program wasn't able to open
 
 ##### COSTANT VARIABLE #####
 
@@ -77,14 +78,16 @@ def check_if_is_json(my_json, keyword_list, line):
 
 # take all possible claimReviewed scheme
 def get_claimReviewed_scheme_in_html_code(file_name):
-  
-  html_code = ''
 
+
+  '''
   try:
     html_code = open(file_name,'r',errors="ignore")
   except:
     if  PRINT_ERROR_READY_HTML == True:
       print("html_check.get_claimReviewed_scheme_in_html_code(file_name) -> error to open: " + str(filename) )
+  '''
+  html_code = open(file_name,'r',errors="ignore")
 
   # loop on each line of the code, to find a possible claimReviewed scheme
   my_json = []
@@ -119,6 +122,7 @@ def html_array_print(html_array):
 
   # r-tuple: < json_list, language >, can be present more than one json!
   for r in html_array:
+    print(r)
     json_list = r[0]
     language = r[1]
 
@@ -135,11 +139,15 @@ def html_array_print(html_array):
     
 
 # return a pair < json_file, language >
-def get_json(filename, print_result = False):
-  result = get_claimReviewed_scheme_in_html_code(filename)
+def get_json(filename_array, print_result = False):
+
+  html_file = []
+  for f in filename_array:
+    result = get_claimReviewed_scheme_in_html_code(f)
+    html_file.append(result)
   
   if print_result == True:
-    html_array_print([result])
+    html_array_print(html_file)
 
   return result
 
@@ -154,5 +162,8 @@ result = []
 result.append(result1)
 result.append(result2)
 
-main(result)
+#html_array_print(result)
+
+name_array = ["gasdotto.html", "confine_russia_finlandia.html"]
+get_json(name_array, True)
 '''

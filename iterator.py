@@ -13,7 +13,7 @@ GLOBAL_DIRECTORY3 = "C:\\My Web Sites\\factanews"
 GLOBAL_DIRECTORY4 = "C:\\misinfo"    # biggest folder: error
 
 # set this variabile to choose to path to analize
-USE_DIRECTORY = GLOBAL_DIRECTORY1
+USE_DIRECTORY = GLOBAL_DIRECTORY3
 
 #### VARIABLE STATUS SCANN ####
 PRINT_SCAN_STATUS = False   # to print status of iteration
@@ -66,7 +66,7 @@ def iterate_on_folders(directory):
 
         # analize html
         if filename.endswith(".html"):  
-           result = hc.get_json(filename)
+           result = hc.get_json([filename])
            html_array.append(result)
 
            increment_html_examinated()
@@ -95,11 +95,10 @@ def create_csv(data_array):
     #   I prepare file as a csv
     my_file.write("json,lang\n")
 
-    for data in data_array:
 
+    for data in data_array:
         for j in data[0]:
-            my_file.write(str(j) + "," + data[1])
-        my_file.write("\n")
+            my_file.write(str(j) + "," + data[1] + "\n")
 
     my_file.close()
 
