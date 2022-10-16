@@ -10,10 +10,11 @@ from time import sleep
 GLOBAL_DIRECTORY1 = "C:\\Users\\pc\\Desktop\\dataset thesys project" 
 GLOBAL_DIRECTORY2 = "C:\\My Web Sites\\factanews\\facta.news" 
 GLOBAL_DIRECTORY3 = "C:\\My Web Sites\\factanews"
-GLOBAL_DIRECTORY4 = "C:\\misinfo"    # biggest folder: error
+GLOBAL_DIRECTORY4 = "C:\\My Web Sites"
+GLOBAL_DIRECTORY5 = "C:\\misinfo"    # biggest folder: error
 
 # set this variabile to choose to path to analize
-USE_DIRECTORY = GLOBAL_DIRECTORY3
+USE_DIRECTORY = GLOBAL_DIRECTORY4
 
 #### VARIABLE STATUS SCANN ####
 PRINT_SCAN_STATUS = False   # to print status of iteration

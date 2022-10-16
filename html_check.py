@@ -80,14 +80,14 @@ def check_if_is_json(my_json, keyword_list, line):
 def get_claimReviewed_scheme_in_html_code(file_name):
 
 
-  '''
+  html_code = ''
   try:
     html_code = open(file_name,'r',errors="ignore")
   except:
     if  PRINT_ERROR_READY_HTML == True:
       print("html_check.get_claimReviewed_scheme_in_html_code(file_name) -> error to open: " + str(filename) )
-  '''
-  html_code = open(file_name,'r',errors="ignore")
+  
+  #html_code = open(file_name,'r',errors="ignore")
 
   # loop on each line of the code, to find a possible claimReviewed scheme
   my_json = []
