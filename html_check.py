@@ -122,7 +122,6 @@ def html_array_print(html_array):
 
   # r-tuple: < json_list, language >, can be present more than one json!
   for r in html_array:
-    print(r)
     json_list = r[0]
     language = r[1]
 
@@ -149,7 +148,7 @@ def get_json(filename_array, print_result = False):
   if print_result == True:
     html_array_print(html_file)
 
-  return result
+  return html_file
 
 
 
