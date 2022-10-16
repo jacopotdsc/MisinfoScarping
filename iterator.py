@@ -14,7 +14,7 @@ GLOBAL_DIRECTORY4 = "C:\\My Web Sites"
 GLOBAL_DIRECTORY5 = "C:\\misinfo"    # biggest folder: error
 
 # set this variabile to choose to path to analize
-USE_DIRECTORY = GLOBAL_DIRECTORY5
+USE_DIRECTORY = GLOBAL_DIRECTORY2
 
 #### VARIABLE STATUS SCANN ####
 PRINT_SCAN_STATUS = False   # to print status of iteration
@@ -67,10 +67,16 @@ def iterate_on_folders(directory):
 
         # analize html
         if filename.endswith(".html"):  
-           result = hc.get_json([filename])
-           html_array.append(result)
+            result = hc.get_json([filename])
 
-           increment_html_examinated()
+            # result is an array of < json_file, lang >
+            for r in result:
+                for file_json in r[0]:
+                    new_json = file_json
+                    new_json['lang'] = r[1]
+                    html_array.append(new_json)
+
+            increment_html_examinated()
 
 
         elif os.path.isdir(str(directory) + "\\" + filename) == True:
@@ -98,8 +104,7 @@ def create_csv(data_array):
 
 
     for data in data_array:
-        for j in data[0]:
-            my_file.write(str(j) + "," + data[1] + "\n")
+        my_file.write(str(data) + "," + data['lang'] + "\n")
 
     my_file.close()
 
@@ -110,3 +115,4 @@ create_csv(html_array)
 print("\ntotal html file examinated: " + str(HTML_EXAMINATED))
 print("total folder scanned: " + str(FOLDER_SCANNED))
 print("total file scanned: " + str(TOTAL_FILE_SCANNED))
+#print(html_array)
