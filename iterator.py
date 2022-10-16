@@ -14,7 +14,7 @@ GLOBAL_DIRECTORY4 = "C:\\My Web Sites"
 GLOBAL_DIRECTORY5 = "C:\\misinfo"    # biggest folder: error
 
 # set this variabile to choose to path to analize
-USE_DIRECTORY = GLOBAL_DIRECTORY4
+USE_DIRECTORY = GLOBAL_DIRECTORY5
 
 #### VARIABLE STATUS SCANN ####
 PRINT_SCAN_STATUS = False   # to print status of iteration
