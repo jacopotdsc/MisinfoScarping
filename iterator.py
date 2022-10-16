@@ -4,6 +4,7 @@ from pickle import GLOBAL
 from tkinter.tix import DirList
 import html_check as hc
 from time import sleep
+import pandas as pd
 
 
 #### GLOBAL VARIABLE
@@ -109,10 +110,20 @@ def create_csv(data_array):
     my_file.close()
 
 
-iterate_on_folders(USE_DIRECTORY)
-#hc.html_array_print(html_array)
-create_csv(html_array)
-print("\ntotal html file examinated: " + str(HTML_EXAMINATED))
-print("total folder scanned: " + str(FOLDER_SCANNED))
-print("total file scanned: " + str(TOTAL_FILE_SCANNED))
-#print(html_array)
+def create_dataset(data_array):
+    return pd.DataFrame(data_array)
+
+def main():
+    iterate_on_folders(USE_DIRECTORY)
+    create_csv(html_array)
+    print("\ntotal html file examinated: " + str(HTML_EXAMINATED))
+    print("total folder scanned: " + str(FOLDER_SCANNED))
+    print("total file scanned: " + str(TOTAL_FILE_SCANNED))
+
+    dataset = create_dataset(html_array)
+    print(dataset)
+
+
+main()
+
+
