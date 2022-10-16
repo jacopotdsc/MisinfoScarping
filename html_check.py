@@ -9,6 +9,7 @@ import langid # NOT USED
 
 ##### VARIABLE DEBUG #####
 KEYWORD_FOUND_DEBUG = False   # used for print keyword found. to understand why a json is extracted
+PRINT_ERROR_READY_HTML = True # show what filemy program wasn't able to open
 
 ##### COSTANT VARIABLE #####
 
@@ -82,7 +83,8 @@ def get_claimReviewed_scheme_in_html_code(file_name):
   try:
     html_code = open(file_name,'r',errors="ignore")
   except:
-    print("html_check.get_claimReviewed_scheme_in_html_code(file_name) -> error to open: " + str(filename) )
+    if  PRINT_ERROR_READY_HTML == True:
+      print("html_check.get_claimReviewed_scheme_in_html_code(file_name) -> error to open: " + str(filename) )
 
   # loop on each line of the code, to find a possible claimReviewed scheme
   my_json = []

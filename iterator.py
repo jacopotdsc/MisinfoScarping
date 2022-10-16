@@ -13,10 +13,25 @@ GLOBAL_DIRECTORY3 = "C:\\My Web Sites\\factanews"
 GLOBAL_DIRECTORY4 = "C:\\misinfo"    # biggest folder: error
 
 # set this variabile to choose to path to analize
-USE_DIRECTORY = GLOBAL_DIRECTORY4
+USE_DIRECTORY = GLOBAL_DIRECTORY1
 
-AUXLIARY_FOR_FORMAT = 0
-HTML_EXAMINATED = 0
+#### VARIABLE STATUS SCANN ####
+PRINT_SCAN_STATUS = False   # to print status of iteration
+VAR_SLEEP = 0               # variabile to read print of scan
+AUXLIARY_FOR_FORMAT = 0     # variable for print
+HTML_EXAMINATED = 0         # counter for html examinated
+FOLDER_SCANNED = 0          # counter for folder scanned
+TOTAL_FILE_SCANNED = 0      # counter for total scan / iteration
+
+def increment_total_file_scanned():
+    global TOTAL_FILE_SCANNED
+    
+    TOTAL_FILE_SCANNED = TOTAL_FILE_SCANNED + 1
+
+    if AUXLIARY_FOR_FORMAT % 1000 == 0 and AUXLIARY_FOR_FORMAT > 500:
+        if PRINT_SCAN_STATUS == True:
+            print("-- total file scanned until now: " + str(TOTAL_FILE_SCANNED))
+            sleep(VAR_SLEEP)
 
 def increment_html_examinated():
     global HTML_EXAMINATED
@@ -26,9 +41,19 @@ def increment_html_examinated():
     AUXLIARY_FOR_FORMAT = AUXLIARY_FOR_FORMAT + 1
 
     if AUXLIARY_FOR_FORMAT % 1000 == 0:
-        print("-- html file examinated until now: " + str(HTML_EXAMINATED)) 
-        sleep(0.5)
+        if PRINT_SCAN_STATUS == True:
+            print("-- html file examinated until now: " + str(HTML_EXAMINATED)) 
+            sleep(VAR_SLEEP)
 
+def increment_folder_scannned():
+    global FOLDER_SCANNED
+
+    FOLDER_SCANNED = FOLDER_SCANNED + 1
+
+    if AUXLIARY_FOR_FORMAT % 1000 == 0 and AUXLIARY_FOR_FORMAT > 500:
+        if PRINT_SCAN_STATUS == True:
+            print("-- total folder scanned until now: " + str(FOLDER_SCANNED))
+            sleep(VAR_SLEEP)
 
 html_array = []
 
@@ -36,6 +61,8 @@ def iterate_on_folders(directory):
 
     dir_list = os.listdir(directory)
     for filename in dir_list:
+
+        increment_total_file_scanned()
 
         # analize html
         if filename.endswith(".html"):  
@@ -45,10 +72,10 @@ def iterate_on_folders(directory):
            increment_html_examinated()
 
 
-        elif str(filename).find(".") != 1: # file extension have one ".", it is correct? 
+        elif os.path.isdir(str(directory) + "\\" + filename) == True:
             new_path = str(directory) + "\\" + filename
-            #print(new_path)
 
+            increment_folder_scannned()
             try:
                 iterate_on_folders(new_path)
             except:
@@ -81,3 +108,5 @@ iterate_on_folders(USE_DIRECTORY)
 #hc.html_array_print(html_array)
 create_csv(html_array)
 print("\ntotal html file examinated: " + str(HTML_EXAMINATED))
+print("total folder scanned: " + str(FOLDER_SCANNED))
+print("total file scanned: " + str(TOTAL_FILE_SCANNED))
