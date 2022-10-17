@@ -68,13 +68,11 @@ def extract_main_text(html_code):
     return my_text
 
 
-def extract_keywords(html_file):
+def extract_keywords(html_file, max_common_words = 10):
     html_code = open(html_file,'r',errors="ignore")
 
 
     all_headlines = extract_main_text(html_code)
-
-    print(all_headlines)
 
     stopwords = create_stopwords_set()
     wordcloud = WordCloud(stopwords=stopwords, background_color="white", max_words=1000).generate(all_headlines)
@@ -82,25 +80,24 @@ def extract_keywords(html_file):
     rcParams['figure.figsize'] = 10, 20
     plt.imshow(wordcloud)
     plt.axis("off")
-    plt.show()
+   # plt.show()
 
     # this array will contain all words on the text
     filtered_words = [word for word in all_headlines.split() if word not in stopwords and check_if_contain_html_words_or_stopwords(word) == False ]
     counted_words = collections.Counter(filtered_words)
     words = []
     counts = []
-    for letter, count in counted_words.most_common(20):
+    for letter, count in counted_words.most_common(max_common_words):
         words.append(letter)
         counts.append(count)
 
-    print(words)
     colors = cm.rainbow(np.linspace(0, 1, 10))
     rcParams['figure.figsize'] = 20, 10
     plt.title('Top words in the headlines vs their count')
     plt.xlabel('Count')
     plt.ylabel('Words')
     plt.barh(words, counts, color=colors)
-    plt.show()
+  #  plt.show()
 
     return words
 
