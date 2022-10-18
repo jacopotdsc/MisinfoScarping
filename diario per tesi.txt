@@ -24,3 +24,7 @@ topic and keyword extraction
 consigli de annotare i tempi:	- time to transalte 1 text: 4.5 sec * 3500 file = 15.750 sec = 262 minutes = 4h, 22 minutes, 30 sec ABOUT
 				- time to transalte array of stopword: 68.3 sec * number of language. but only once for language!
 					italian is 60° spoken language -> tot time 68.3 * 60 = 4098 sec = 68 minutes and 3 sec
+
+				- time to iterate 30k file: 3 minutes
+ouuput strano: pulire il testo html?
+
