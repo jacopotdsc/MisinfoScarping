@@ -1,0 +1,26 @@
+non fare tuple / liste se si lavora con json poichè, essendo dizionari, si può estendere
+il riutilizzo del codice con la funzione
+errore con json vuoti -> problemi con la creazione del dataframe con pandas
+httrack: tempo 
+cercare i json
+problemi nel lavorare con l'html online
+
+utilizzo del cerca senza scaricare gli html
+
+
+parte nlp
+problemi con l'estrazione delle parole
+
+trazuione parole per stopwords
+strano erroer che, passano un subtext alla funzioen per tradurre, funziona tutto
+lentezza nel traduttore un array STOPWORDS
+different common word for language
+
+
+DA CHIEDERE
+parole in href, devo prenderle?
+come velocizzare la traduzione
+topic and keyword extraction
+consigli de annotare i tempi:	- time to transalte 1 text: 4.5 sec * 3500 file = 15.750 sec = 262 minutes = 4h, 22 minutes, 30 sec ABOUT
+				- time to transalte array of stopword: 68.3 sec * number of language. but only once for language!
+					italian is 60° spoken language -> tot time 68.3 * 60 = 4098 sec = 68 minutes and 3 sec
