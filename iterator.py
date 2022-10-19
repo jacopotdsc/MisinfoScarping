@@ -15,7 +15,7 @@ import time
 GLOBAL_DIRECTORY1 = "C:\\Users\\pc\\Desktop\\dataset thesys project\\try_folder_scan" 
 GLOBAL_DIRECTORY2 = "C:\\My Web Sites\\factanews\\facta.news" 
 GLOBAL_DIRECTORY3 = "C:\\My Web Sites\\factanews"
-GLOBAL_DIRECTORY4 = "C:\\My Web Sites"
+GLOBAL_DIRECTORY4 = "C:\\My Web Sites"  # bigger one
 GLOBAL_DIRECTORY5 = "C:\\misinfo"   
 
 # set this variabile to choose to path to analize
@@ -153,10 +153,13 @@ def iterate_on_folders(directory):
     
 
 def create_csv(dataframe):
-    dataframe.to_csv("data.csv")
+    if USE_DIRECTORY == GLOBAL_DIRECTORY1:
+        dataframe.to_csv("data_prova.csv")
+    else:
+        dataframe.to_csv("data.csv")
     
 def create_dataset(data_array):
-    return pd.DataFrame(data_array)
+    return pd.DataFrame(data_array).sort_index(axis=1)
 
 def main():
 

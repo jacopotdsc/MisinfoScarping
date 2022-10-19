@@ -11,6 +11,8 @@ from matplotlib import rcParams
 from wordcloud import WordCloud, STOPWORDS
 from deep_translator import GoogleTranslator
 import time
+from bs4 import BeautifulSoup
+from nltk.corpus import stopwords
 
 # main text is in <p> tag and between
 # <div class="edgtf-post-text-main"> e
@@ -56,30 +58,15 @@ MY_STOPSORDS_IT = ['nel','del', 'le', 'con', 'dalla', 'il', 'dal', 'al', 'la',
 
 my_stowords_dict = {'it': MY_STOPSORDS_IT, 'en': MY_STOPSORDS_EN}
 
-# True if there is html word, else False
-def check_if_contain_html_words_or_stopwords(word, stopwords):
+# True if there is html word or stopwords, else False
+def check_if_contain_html_words_or_stopwords(word, my_stopwords):
     
-    for sw in stopwords:
+    for sw in my_stopwords:
         ##if word.find(sw) != -1:
-        if word == sw:
+        if word.lower() == sw.lower():  # to make them equals
             return True
     
     return False
-    '''
-    for w in HTML_WORDS:
-        if word.find(w) != -1:
-            if w not in HTML_WORDS:
-                print("-- found HTML_WORD" + w + " in " + word)
-            return True
-    
-    for sw in STOPWORDS:
-        if word.find(sw) != -1:
-            if sw not in STOPWORDS:
-                print("-- found STOPWORDS" + sw + " in " + word)
-            return True
-
-    return False
-    '''
 
 # return array with all stopwords
 def create_stopwords_set():
@@ -93,9 +80,22 @@ def create_stopwords_set():
         all_stopwords.add(w)
     return all_stopwords
 
+
+# return an array with all ulr in the main text
+def extract_all_url(main_text):
+    soup = BeautifulSoup(main_text)
+
+    links = []
+    for link in soup.find_all('a'):
+        links.append(link.get('href'))
+
+    return links
+
 # extract main text from html code
 def extract_main_text(html_code):
 
+
+    # extract ONLY the main text, the main body
     my_text = ''
 
     start_copy = False
@@ -110,8 +110,28 @@ def extract_main_text(html_code):
 
         if start_copy == True and HTML_TEXT_TAG in line:
             my_text += line
-    
+
+
     return my_text
+
+# take html_main_text and return text without html tags
+def clear_html_text(text_to_clear):
+
+    soup = BeautifulSoup(text_to_clear, features="html.parser")
+    
+    for script in soup(["scipt", "style"]):
+        script.extract()       # rip out all thing which I don't need
+
+    text = soup.get_text()
+    #print(text)
+
+    lines = (line.strip() for line in text.splitlines())
+
+    chunks = (phrase.strip() for line in lines for phrase in line.split(" "))
+    
+    text = '\n'.join(chunk for chunk in chunks if chunk)
+
+    return text
 
 # translate the main text of html page,  useful for STOPWORD provided by library
 def translate_html_text(text):
@@ -156,76 +176,23 @@ def translate_stopwords(array, s='auto', t='it'):
     return translated_array
 
 
-def clear_from_url(text):
-    new_line = ''
-
-    i = 0
-    while i < len(text):
-        if text[i] == '<' and text[i+1] == 'a' and text[i+3] == 'h' and text[i+4] == 'r' and text[i+5] == 'e' and text[i+6] =='f':
-            
-            while( text[i] != ">" ): 
-                i += 1
-            i += 1
-            while( text[i] != "<"):
-                new_line += text[i]
-                i += 1
-            
-            while( text[i] != ">"):
-                i += 1
-        else:
-            new_line += text[i]
-        
-        i += 1
-
-    return new_line
-            
-
-# take html_main_text and return text without html tags
-def clear_html_text(text):
-
-    new_text = ''
-    strange_a_letter = "Â"
-
-    text = [text]
-    for line in text:
-        new_line = ''
-
-        if "<a href" in line:
-            new_line = clear_from_url(line)
-            
-
-        print(new_line)
-        print("entrato p")
-        if new_line == '':
-            new_line = line
-            
-        print(new_line)
-        new_line = new_line.split("<p>")[1]
-        print(new_line)
-        new_line = new_line.split("</p>")[0]
-        print(new_line)
-
-        new_text += new_line
-
-        print("splitto")
-        if strange_a_letter in new_text:
-            #print(new_text.split(strange_a_letter))
-            for w in new_text.split(strange_a_letter):
-                new_text += w
-
-    return new_text
-
 
 def extract_keywords(html_file, max_common_words = 10):
     html_code = open(html_file,'r',errors="ignore", encoding='UTF-8')
 
 
-    all_headlines = extract_main_text(html_code)
+    main_text_html_version = extract_main_text(html_code)
+    all_url = extract_all_url(main_text_html_version)
+    main_text = clear_html_text(main_text_html_version)
 
-    stopwords = create_stopwords_set()
-    wordcloud = WordCloud(stopwords=stopwords, background_color="white", max_words=1000).generate(all_headlines[0:400])
+    print("number of ulr: " + str(len(all_url)))
 
-    print(all_headlines)
+    my_stopwords = list( stopwords.words('italian') )
+    print("ecco le stopwords")
+    print(type(my_stopwords[0]))
+    wordcloud = WordCloud(stopwords=my_stopwords, background_color="white", max_words=1000).generate(main_text[0:400])
+
+    #print(all_headlines)
 
     rcParams['figure.figsize'] = 5, 10
     plt.imshow(wordcloud)
@@ -233,15 +200,15 @@ def extract_keywords(html_file, max_common_words = 10):
     #plt.show()
 
     # this array will contain all words on the text
-    filtered_words = [word for word in all_headlines.split() if word not in stopwords and check_if_contain_html_words_or_stopwords(word, stopwords) == False ]# and word.isnumeric() == False ]
-    #filtered_words = [word for word in all_headlines.split() if word not in stopwords and check_if_contain_html_words_or_stopwords(word, stopwords) == False and word.isnumeric() == False ]
+    filtered_words = [word for word in main_text.split() if word not in my_stopwords and check_if_contain_html_words_or_stopwords(word, my_stopwords) == False ]# and word.isnumeric() == False ]
+    #filtered_words = [word for word in all_headlines.split() if word not in my_stopwords and check_if_contain_html_words_or_stopwords(word, my_stopwords) == False and word.isnumeric() == False ]
     
     #filtered_words = [word for word in all_headlines.split() if word not in stopwords]
 
     counted_words = collections.Counter(filtered_words)
     words = []
     counts = []
-    for letter, count in counted_words.most_common(30):
+    for letter, count in counted_words.most_common(max_common_words):
         words.append(letter)
         counts.append(count)
         print(letter + " -> " + str(count) )
@@ -259,7 +226,7 @@ def extract_keywords(html_file, max_common_words = 10):
 
 
 #file1 = extract_keywords("gasdotto.html")
-file2 = extract_keywords("confine_russia_finlandia.html")
+file2 = extract_keywords("try_folder_scan\\incendio_auto.html")
 
 #print(file1)
 print(file2)
