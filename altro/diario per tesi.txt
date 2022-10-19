@@ -25,6 +25,10 @@ consigli de annotare i tempi:	- time to transalte 1 text: 4.5 sec * 3500 file = 
 				- time to transalte array of stopword: 68.3 sec * number of language. but only once for language!
 					italian is 60° spoken language -> tot time 68.3 * 60 = 4098 sec = 68 minutes and 3 sec
 
-				- time to iterate 30k file: 3 minutes
-ouuput strano: pulire il testo html?
+				- time to iterate 30k file with busy pc: 3 minutes
+				- time to iterato on 30k file: 1 minute and 30 sec about
 
+				
+				- time iterator + nlp_module 30k file: 325 sec = 5 min and 25 sec
+
+funzioni di traduzione aa mano e stopwords
