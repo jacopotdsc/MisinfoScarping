@@ -152,26 +152,28 @@ def iterate_on_folders(directory):
                 #new_json['lang'] = result[1]
 
                 new_dict = {} 
+
+                # taking all keywords from the returned array
+                html_keywords, all_url = nlpm.extract_keywords(new_path)
+
+                # saving all url interal to the main text
+                file_json['internal_url'] = all_url
+
                 flattend_dict = make_flat_dict(file_json, new_dict)
 
                 string_to_translate = flattend_dict['claimReviewed.0'][0] # article's title
 
                 flattend_dict['lang'] = detect_language(string_to_translate)
-            
-
                 
-                # taking all keywords from the returned array
-                html_keywords, all_url = nlpm.extract_keywords(new_path)
-
-                # saving all url interal to the main text
-                flattend_dict['internal_url'] = all_url
 
                 # append final dictionary
                 html_array.append(flattend_dict)
 
                 # append keywords for word-cloud
+                doc_keywords = []
                 for k in html_keywords:
-                    keywords_array.append(k)
+                    doc_keywords.append(k)
+                keywords_array.append(doc_keywords)
                 
 
             increment_html_examinated()
@@ -189,7 +191,7 @@ def iterate_on_folders(directory):
 
 def create_csv(dataframe):
     if USE_DIRECTORY == GLOBAL_DIRECTORY1:
-        dataframe.to_csv("data_prova.csv")
+        dataframe.to_csv("data_prova_2.csv")
     else:
         dataframe.to_csv("data.csv")
     
@@ -269,6 +271,9 @@ def main():
 
     #detected_topic = topic_detection(keywords_array)
     #plot_all(dataset)
+
+    print(keywords_array)
+    #lda.lda(keywords_array)
 
 main()
 
