@@ -4,6 +4,8 @@ from gensim.models.coherencemodel import CoherenceModel
 import matplotlib as plt
 
 keyword_array = [['Putin', 'Draghi', '2022', 'presidente', 'dichiarazioni', 'riferimento', 'conferenza', 'stampa', '24', 'febbraio'], ['aprile', 'auto', 'Hannover', '2022', 'polizia', 'pubblicato', 'mostra', 'serie', 'bruciate', 'state'], ['vaccino', 'animali', 'ottobre', '2022', 'Nuovo', 'Galles', 'governo', 'vaccini', 'bestiame', 'Dna'], ['Telepass', 'potrebbe', 'dispositivo', 'posizionato', 'parte', 'sbarra', 'doppio', 'fatto', 'pedaggio', 'inferiore']]
+title_array = [['Putin: “non accetto lezioni di democrazia da un paese che impedisce ad una parte della sua popolazione persino di prendere l’autobus per andare al lavoro”'], ['Queste auto sono state bruciate da rifugiati ucraini per motivazioni politiche legate alla guerra in Russia'], ['Stanno somministrando alle mucche il vaccino mRNA Che passerà il vaccino nel latte, nel formaggio, ecc'], ['Telepass, non posizionarlo mai così: paghi il doppio ogni volta']]
+
 
 
 def lda(clean_docs):

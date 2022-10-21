@@ -100,7 +100,11 @@ def create_pie_chart(my_labels, data):
     plt.show()
 
 
-def extract_keywords(html_file, max_common_words = 10, language='italian'):
+def get_stopwords(language):
+  return stopwords.words(language)
+
+
+def extract_informations(html_file, max_common_words = 15, language='italian'):
 
    # print("-- opening path: " + html_file)
     html_code = open(html_file,'r',errors="ignore", encoding='UTF-8')
@@ -112,8 +116,9 @@ def extract_keywords(html_file, max_common_words = 10, language='italian'):
 
 
     my_stopwords = list( stopwords.words(language) )
-    wordcloud = WordCloud(stopwords=my_stopwords, background_color="white", max_words=1000).generate(main_text)
+    wordcloud = WordCloud(stopwords=my_stopwords, background_color="white", max_words=20).generate(main_text)
 
+    #print(type(wordcloud))
     #print(all_headlines)
 
     '''
@@ -147,12 +152,14 @@ def extract_keywords(html_file, max_common_words = 10, language='italian'):
     return words, all_url
 
 '''
-file1 = extract_keywords("try_folder_scan\\gasdotto.html")
-file2 = extract_keywords("try_folder_scan\\incendio_auto.html")
+file1 = extract_informations("try_folder_scan\\gasdotto.html")
+file2 = extract_informations("try_folder_scan\\incendio_auto.html")
 
 print(file1)
 print(file2)
 '''
+
+
 
 
 

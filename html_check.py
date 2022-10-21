@@ -52,10 +52,6 @@ def check_if_is_claim_review(file):
   return False
 
 
-def extract_language(html_code):
-  return 'it'
-
-
 def get_claimReviewed_scheme_in_html_code(file_name):
 
 
@@ -77,16 +73,16 @@ def get_claimReviewed_scheme_in_html_code(file_name):
     json_file = convert_string_to_json( str(j) )
     my_json.append(json_file)
 
-  language = extract_language(html_code)
+  #language = extract_language(html_code)
 
 
   # extract claim_reviewed_json
   for json_file in my_json:
 
     if check_if_is_claim_review(json_file) == True:
-      return json_file, language
+      return json_file#, language
 
-  return [], language
+  return []#, language
 
 # Take an array with entry < json_file, language > given by get_claimReviewed_scheme_in_html_code(file_name)
 def html_array_print(html_array):
