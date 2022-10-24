@@ -3,6 +3,7 @@ from gensim.models import LsiModel
 from gensim.models.coherencemodel import CoherenceModel
 from wordcloud import WordCloud
 import matplotlib as plt
+import numpy as np
 
 keyword_array = [['Putin:', '“non', 'accetto', 'lezioni', 'democrazia', 'paese', 'impedisce', 'parte', 'popolazione', 'persino', 'prendere', 'l’autobus', 'andare', 'lavoro”'], ['auto', 'state', 'bruciate', 'rifugiati', 'ucraini', 'motivazioni', 'politiche', 'legate', 'guerra', 'Russia'], ['somministrando', 'mucche', 'vaccino', 'mRNA', 'passerà', 'vaccino', 'latte,', 'formaggio,', 'ecc'], ['foto', 'mostrano', 'folla', 'manifestazione', 'pro', 'Trump', '14', 'novembre', '2020'], ['Putin:', '“non', 'accetto', 'lezioni', 'democrazia', 'paese', 'impedisce', 'parte', 'popolazione', 'persino', 'prendere', 'l’autobus', 'andare', 'lavoro”'], ['video', 'luna', 'stato', 'girato', 'confine', 'Canada,', 'Alaska', 'Russia.', 'fenomeno', 'verifica', 'solo', 'perigeo', '(il', 'punto', 'luna', 'vicina', 'terra)', 'proprio', 'qui', 'possiamo', 'renderci', 'conto', 'grande', 'velocità', 'pianeta', 'muove'], ['Bill', 'Gates', 'detto', 'vaccino', 'Covid-19', '«non', 'sicuro,', 'facciamolo', 'comunque»'], ['«Perakov', 'Natalya,', 'prima', 'donna', 'pilota', 'dell’aviazione', 'ucraina,', 'trovato', 'l’altro', 'giorno', 'morte', 'cieli', 'patria.', '#stopwar»'], ['Enorme', 'ingorgo', 'ponte', 'Kerch.', 'russi', 'pronti', 'lasciare', 'Crimea,', 'dopo', 'distruzione', "dell'aeroporto", 'occupanti,', 'aumentano', 'ora', 'ora'], ['“Eni', 'bloccato', 'prezzo', 'gas', 'Russia', '10', 'anni', 'fa', 'contratto.', 'continua', 'pagarlo', 'quel', 'prezzo.', 'Però', 'applica', 'prezzo', 'determinato', 'borsa', 'Amsterdam.', 'Quindi', 'compra', '2', '(come', 'contratto)', 've', 'rivende', '30', '(grazie', 'borsa', 'pura', 'speculazione).', 'Eni', 'meccanismo', 'utile', '600', 'miliardi', 'primi', '6', 'mesi', "quest'anno.", 'Eni', 'casualmente', 'spostato', 'sede', 'legale', 'Olanda.', "L'Eni", 'compartecipata', 'statale', '30,62%', '(4', 'rotti%', 'ministero', "dell'economia", 'finanze', '26', 'rotti%', 'Cassa', 'Depositi', 'Prestiti).', 'Quindi', 'parte', "quell'utile", '(180', 'MILIARDI!!!)', 'stato', 'italiano,', 'vuole', 'ridarlo', 'clienti', '(Cittadini', 'Imprese).', 'Altro', 'sforamento', 'bilancio', 'PNNR.', 'finita', 'qui.', 'società', 'borsa', 'contratta', 'gas,', 'fatalità', 'americana.', 'Paga', '3%', 'tasse', 'Olanda', 'resto', 'porta', 'chissà', 'dove.', 'contempo', 'però', 'alzando', 'artificiosamente', 'prezzo', 'gas,', 'modo', 'paesi', 'europei', 'costretti', 'comprare', '(al', 'triplo', 'prezzo)', 'gas', 'americano', '(bontà', 'loro,', 'mossi', 'humana', 'pietas', 'ce', 'vendono).', 'vedete', 'Putin', "c'entra", 'tubo', '(scusate', 'battuta).', 'vero', 'nemico', 'Italia.', 'già', 'venuta', 'colica', '?', 'volete', 'continuo...”', 'Mario', 'Giordano'], ['«Oggi', 'aggiungiamo', 'ancora', 'confronto', 'ghiacci', 'artici.', 'Ricordate?', 'ghiaccio', "dell'Artico", 'scomparendo', 'alcuni', 'pseudoscienziati...', 'ehm...', 'oggi', "c'è", 'tanto', 'ghiaccio', 'ce', "n'era", '1989.', 'Trovate', 'differenza', 'entrambe', 'immagini...»'], ['«Vendesi', 'carri', 'armati', 'eBay', 'catturati', 'Ucraina»'], ['Muammar', 'Gheddafi:', '«Creeranno', 'virus', 'soli', 'venderanno', 'antidoti', 'poi', 'finta', 'aver', 'bisogno', 'tempo', 'trovare', 'soluzione', 'quando', 'già', 'ce', "l'hanno»"], ['«Covid', 'Pandemia', 'pilotata.', 'L’Unione', 'europea', 'sapeva.', 'Ecco', 'documenti»'], ['ministero', 'Difesa', 'ripristinato', 'leva', 'obligatoria'], ['Telepass,', 'posizionarlo', 'mai', 'così:', 'paghi', 'doppio', 'ogni', 'volta']]
 clean_docs = keyword_array
@@ -17,33 +18,44 @@ title_array = [['Putin: “non accetto lezioni di democrazia da un paese che imp
 
 
 
-# plot one wordcloud for topics
-def plot_word_cloud(number_of_topics, doc_term_matrix, dictionary):
 
-  lsa_model = LsiModel(doc_term_matrix, num_topics=number_of_topics, id2word = dictionary) # train model
+# return a dictionary topic - article
+def divide_docs_into_topics(number_of_topics, doc_term_matrix, dictionary):
+    lsa_model = LsiModel(doc_term_matrix, num_topics=number_of_topics, id2word = dictionary) # train model
+
+    docs_per_topic = {i:[] for i in range(number_of_topics)}
+    for doc_id,doc_repr in enumerate(doc_term_matrix):
+        doc_score_per_topic = lsa_model[doc_repr] #get topic score per document
+        if len(doc_score_per_topic)!=0: #FS: DON'T REALLY KNOW WHY, BUT SOME DOCUMENTS HAVE NO TOPIC ASSIGNED
+            doc_score_per_topic = sorted(doc_score_per_topic, key=lambda x: x[1]) #sort
+            best_topic = doc_score_per_topic[-1][0] #-1 because last has higher value, 0 because first index is topic index
+            docs_per_topic[best_topic].append(doc_id)
+
+    docs_per_topic = {k:np.array(v) for k,v in docs_per_topic.items()}
+    return docs_per_topic
 
 
-  # subplot for every topic
+def plot_word_cloud(docs_per_topic, clean_docs):
+    for topic,docs_ids in docs_per_topic.items():
+        print("TOPIC:",topic)
+        if len(docs_ids)==0:
+            print("\t EMPTY TOPIC!")
+        else:
+            topic_docs = clean_docs[docs_ids]
+            
+            topic_docs_as_string = " ".join([" ".join(x) for x in topic_docs])
 
-  i = 1
-  for topic_i,words_and_importance in lsa_model.print_topics(num_topics=number_of_topics, num_words=10):
-    print("TOPIC:",topic_i)
-    
-    word_wordcloud = ''
-    for app in words_and_importance.split(" + "):
-      value,token = app.split("*")
-      value = float(value)
-      token = str(token.replace('"',""))
-      word_wordcloud += token # wordcloud take a string
-      print("\t",value,token)
-    print()
-    
-    wordcloud = WordCloud(background_color="white", max_words=30).generate(word_wordcloud)
-    plt.subplot(4, 4, i )
-    plt.imshow(wordcloud)
-    plt.axis("off")
+            #wordcloud = WordCloud(background_color="white", max_words=30).generate(word_wordcloud)
+            wordcloud = WordCloud(background_color="white", max_words=30, width=1600, height=800).generate(topic_docs_as_string)
+            #plt.subplot(matrix_side_len, matrix_side_len, i ) #FS: why this?
+            plt.imshow(wordcloud)
+            plt.title(topic, fontsize=5)
+            plt.axis("off")
+            plt.show()
 
-    i += 1
+        print("\n")
+
+
 
 # return number of optimal topics and a matrix and dictionary used for plot word cloud
 def lda(data, debug=False):
@@ -61,33 +73,44 @@ def lda(data, debug=False):
 
   coherence_values = []
 
-  possible_numbers_of_topics = [2,3,4,5,6,8,10,12,15,20,25,30]
-  #possible_numbers_of_topics = [1,2,3,4,5,6,7]
 
   print(doc_term_matrix)
   print(dictionary)
 
-  val_max = 0
-  ind_max = 0
-  index = 0
-  for number_of_topics in possible_numbers_of_topics:
-    #print("LSA for #topics:",number_of_topics)
-    lsa_model = LsiModel(doc_term_matrix, num_topics=number_of_topics, id2word = dictionary) # train model
+  possible_numbers_of_topics = [2,3,4,5,6,8,10,12,15,20,25,30,40,50]
+
+  repetitions = 5 # do 10 or even 20 if enough time
+
+  all_coherence_values = [] #FS
 
 
+  for rep in range(repetitions): # doing repetitions cause LDA is random and need an average value for coherence
+    val_max = 0
+    ind_max = 0
+    index = 0
+    coherence_values = []
 
-    coherence_model = CoherenceModel(model=lsa_model, texts=clean_docs, dictionary=dictionary, coherence='c_v')
-    coherence_values.append(coherence_model.get_coherence())
+    for number_of_topics in possible_numbers_of_topics:
+        print("LSA for #topics:",number_of_topics)
+        lsa_model = LsiModel(doc_term_matrix, num_topics=number_of_topics, id2word = dictionary) # train model
 
-    if index >= 4:
-      ind_max = 4
+        coherence_model = CoherenceModel(model=lsa_model, texts=clean_docs, dictionary=dictionary, coherence='c_v')
+        coherence_values.append(coherence_model.get_coherence())
 
+        #print(type(coherence_values))
+        #print(coherence_values[index])
+        #print(coherence_values[ind_max])
 
-    if coherence_values[index] > coherence_values[ind_max] and ind_max !=0:
-      ind_max = index
-      val_max = coherence_values[index]
+        if index >= 4:
+            ind_max = 4
 
-    index += 1
+        if coherence_values[index] > coherence_values[ind_max] and ind_max != 0:
+            ind_max = index
+            val_max = coherence_values[index]
+
+        index += 1
+        all_coherence_values.append(coherence_values)
+
 
   if debug == True:
     print(coherence_values)
@@ -97,6 +120,15 @@ def lda(data, debug=False):
     print(possible_numbers_of_topics)
     print(coherence_values) 
   
+
+    #FS: Compute mean of coherences
+    coherence_values_mean = np.mean(all_coherence_values,axis=0)
+    coherence_values_std = np.std(all_coherence_values,axis=0)
+    z = 1.96
+    dev = z*coherence_values_std/np.sqrt(len(coherence_values_std))
+    coherence_values_confidence_interval_left = coherence_values_mean - dev
+    coherence_values_confidence_interval_right = coherence_values_mean + dev
+
     plt.plot(possible_numbers_of_topics, coherence_values)
     plt.xlabel("Number of Topics")
     plt.ylabel("Coherence score")
@@ -104,6 +136,7 @@ def lda(data, debug=False):
     plt.show()
   
     return possible_numbers_of_topics[ind_max], dictionary, doc_term_matrix
+
 
 
 #n_topics, lda_dict, lda_term_matrix = lda(keyword_array, True)
