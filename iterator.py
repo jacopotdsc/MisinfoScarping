@@ -23,6 +23,7 @@ import math
 
 import html_check as hc
 import nlp_module as nlpm
+import lda
 
 
 #### GLOBAL VARIABLE
@@ -34,7 +35,7 @@ GLOBAL_DIRECTORY4 = "C:\\My Web Sites"  # bigger one
 GLOBAL_DIRECTORY5 = "C:\\misinfo"   
 
 # set this variabile to choose to path to analize
-USE_DIRECTORY = GLOBAL_DIRECTORY4
+USE_DIRECTORY = GLOBAL_DIRECTORY0
 
 #### VARIABLE STATUS SCANN ####
 PRINT_SCAN_STATUS = True   # to print status of iteration
@@ -86,9 +87,9 @@ def increment_folder_scannned():
 
 ##### START OF CODE ####
 
-html_array = []
-keywords_array = []
-title_array = []
+html_array = [] # array which contain html text
+keywords_array = [] # keywords of articles's tile
+title_array = []    # array with title of articles
 
 def make_flat_dict(json_file, new_dict, depth=0):
 
@@ -185,7 +186,7 @@ def iterate_on_folders(directory):
 
                 
                 
-                #### word-cloud part 
+                #### word-cloud part , search for keyword
 
                 filtered_words = []
                 translator = Translator()
@@ -199,12 +200,14 @@ def iterate_on_folders(directory):
 
                 #filtered_words = [word for word in doc_title.split() nlpm.check_if_contain_html_words_or_stopwords(word, my_stopwords) == False ]
 
+                #print(type(filtered_words))
                 title_array.append(filtered_words)
+                keywords_array.append(filtered_words)
 
                 # append keywords for word-cloud
-                new_title = " ".join(chunk for chunk in filtered_words if chunk)
+                #new_title = " ".join(chunk for chunk in filtered_words if chunk)
                 #print(new_title)
-                keywords_array.append(new_title)
+                #keywords_array.append(new_title)
                 
 
             increment_html_examinated()
@@ -245,10 +248,15 @@ def plot_language_pie_chart(data):
     
 def plot_all(my_array, data):
 
+    # plotting word_cloud in a matrix msl X msl,   msl = matrix_side_len
+
     t = 0
     matrix_side_len = len(my_array)
     matrix_side_len = int( math.ceil(math.sqrt( matrix_side_len) ) ) + 1
-    for text in my_array: 
+    for elem in my_array: 
+
+        text = " ".join(chunk for chunk in elem if chunk)
+
         wordcloud = WordCloud(background_color="white", max_words=30).generate(text)
         i=t+1
         plt.subplot(matrix_side_len, matrix_side_len, i)
@@ -256,6 +264,9 @@ def plot_all(my_array, data):
         plt.axis("off")
         t += 1
     #plt.show()
+
+
+    # creating pie_chart
 
     data_to_plot = data['lang']
     extracted_info = data_to_plot.value_counts()    # return value and frequency of the value
@@ -271,14 +282,7 @@ def plot_all(my_array, data):
     plt.pie(value, labels=labels)
 
     plt.show()
-    
-def topic_detection(str_array):
-    
-    print(str_array)
-    my_kmeans = KMeans(n_clusters=2)
-    my_kmeans.fit(str_array)
-    res = my_kmeans.predict(str_array)
-    print(res)
+
 
 def plot_wordcloud(my_array):
     t = 0
@@ -293,6 +297,9 @@ def plot_wordcloud(my_array):
         plt.axis("off")
         t += 1
     plt.show()
+
+
+
 
 def main():
 
@@ -317,13 +324,22 @@ def main():
     
 
     start_plot_time = time.time()
-    #plot_wordcloud(keywords_array)
+
+    
+    #print(keywords_array)
+    #print(len(keywords_array))
     plot_all(keywords_array, dataset)
+
     actual_time = time.time()
     plot_time = actual_time- start_plot_time
 
     print(plot_time)
     print(actual_time)
+
+    actual_time = time.time()
+
+    n_topics, lda_dict, lda_term_matrix = lda.lda(keywords_array)
+    lda.plot_word_cloud(n_topics, lda_term_matrix, lda_dict)
 
 main()
 
