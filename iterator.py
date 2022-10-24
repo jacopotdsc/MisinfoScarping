@@ -36,6 +36,7 @@ GLOBAL_DIRECTORY5 = "C:\\misinfo"
 
 # set this variabile to choose to path to analize
 USE_DIRECTORY = GLOBAL_DIRECTORY0
+BATCH_SIZE = 100     # variabile use to lda and plotting, it's the batch size on the dataset
 
 #### VARIABLE STATUS SCANN ####
 PRINT_SCAN_STATUS = True   # to print status of iteration
@@ -325,9 +326,6 @@ def main():
 
     start_plot_time = time.time()
 
-    
-    #print(keywords_array)
-    #print(len(keywords_array))
     plot_all(keywords_array, dataset)
 
     actual_time = time.time()
@@ -338,8 +336,20 @@ def main():
 
     actual_time = time.time()
 
-    n_topics, lda_dict, lda_term_matrix = lda.lda(keywords_array)
-    lda.plot_word_cloud(n_topics, lda_term_matrix, lda_dict)
+
+    while items_scanned < len(dataset):
+        n_topics, lda_dict, lda_term_matrix = lda.lda(keywords_array[items_scanned : items_scanned + BATCH_SIZE], True)
+        lda.plot_word_cloud(n_topics, lda_term_matrix, lda_dict)
+
+        items_scanned += BATCH_SIZE
+
+    
+    plot_time = time.time() - actual_time
+    total_time = time.time()
+
+    print(plot_time)
+    print(total_time)
+
 
 main()
 
