@@ -1,5 +1,6 @@
 from cProfile import label
 import chunk
+from distutils.util import split_quoted
 import json
 from msilib.schema import Directory
 import os
@@ -36,7 +37,7 @@ GLOBAL_DIRECTORY5 = "C:\\misinfo"
 
 # set this variabile to choose to path to analize
 USE_DIRECTORY = GLOBAL_DIRECTORY0
-BATCH_SIZE = 100     # variabile use to lda and plotting, it's the batch size on the dataset
+BATCH_SIZE = 4     # variabile use to lda and plotting, it's the batch size on the dataset
 
 #### VARIABLE STATUS SCANN ####
 PRINT_SCAN_STATUS = True   # to print status of iteration
@@ -326,8 +327,9 @@ def main():
 
     start_plot_time = time.time()
 
-    plot_all(keywords_array, dataset)
+    #plot_all(keywords_array, dataset)
 
+    print("-- dataset created --")
     actual_time = time.time()
     plot_time = actual_time- start_plot_time
 
@@ -336,13 +338,22 @@ def main():
 
     actual_time = time.time()
 
-
+    
+    '''
+    items_scanned = 0
     while items_scanned < len(dataset):
-        n_topics, lda_dict, lda_term_matrix = lda.lda(keywords_array[items_scanned : items_scanned + BATCH_SIZE], True)
-        lda.plot_word_cloud(n_topics, lda_term_matrix, lda_dict)
 
+        splitted_array = keywords_array[items_scanned : items_scanned + BATCH_SIZE]
+        print(splitted_array)
+        n_topics, lda_dict, lda_term_matrix = lda.lda(splitted_array, False)
+        
+        #lda.plot_word_cloud(n_topics, lda_term_matrix, lda_dict)
         items_scanned += BATCH_SIZE
+    '''
 
+
+    n_topics, lda_dict, lda_term_matrix = lda.lda(keywords_array, False)
+    lda.plot_word_cloud(n_topics, lda_term_matrix, lda_dict)
     
     plot_time = time.time() - actual_time
     total_time = time.time()
