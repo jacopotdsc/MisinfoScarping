@@ -311,18 +311,9 @@ def main():
     print("total file scanned: " + str(TOTAL_FILE_SCANNED))
     print("total json claim reviewed found: " + str(TOTAL_CLAIM_REVIEW_FILE))
 
-    #nlpm.create_pie_chart("uno", keywords_array)
 
     dataset = create_dataset(html_array)
     create_csv(dataset)
-
-    #detected_topic = topic_detection(keywords_array)
-    #plot_all(dataset)
-
-   # print(keywords_array)
-   # print(title_array)
-
-    #number_of_topics = lda.lda(title_array)
     
 
     start_plot_time = time.time()
