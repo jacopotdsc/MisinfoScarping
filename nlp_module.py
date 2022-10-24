@@ -38,7 +38,8 @@ def check_if_contain_html_words_or_stopwords(word, my_stopwords):
 
 # return an array with all ulr in the main text
 def extract_all_url(main_text):
-    soup = BeautifulSoup(main_text)
+    #soup = BeautifulSoup(main_text)
+    soup = BeautifulSoup(main_text, features="html5lib")  
 
     links = []
     for link in soup.find_all('a'):

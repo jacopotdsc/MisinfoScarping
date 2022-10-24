@@ -66,6 +66,7 @@ def get_claimReviewed_scheme_in_html_code(file_name):
 
   # take all json_file
   soup = BeautifulSoup(html_code, "html.parser")
+  #soup = BeautifulSoup(html_code, "html.parser", features="html.parser")
   json_object = soup.find_all('script', type='application/ld+json')
 
   # creating array with all json_file 

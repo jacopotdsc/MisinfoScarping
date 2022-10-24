@@ -3,7 +3,6 @@ from gensim.models import LsiModel
 from gensim.models.coherencemodel import CoherenceModel
 from wordcloud import WordCloud
 import matplotlib as plt
-import math
 
 keyword_array = [['Putin:', '“non', 'accetto', 'lezioni', 'democrazia', 'paese', 'impedisce', 'parte', 'popolazione', 'persino', 'prendere', 'l’autobus', 'andare', 'lavoro”'], ['auto', 'state', 'bruciate', 'rifugiati', 'ucraini', 'motivazioni', 'politiche', 'legate', 'guerra', 'Russia'], ['somministrando', 'mucche', 'vaccino', 'mRNA', 'passerà', 'vaccino', 'latte,', 'formaggio,', 'ecc'], ['foto', 'mostrano', 'folla', 'manifestazione', 'pro', 'Trump', '14', 'novembre', '2020'], ['Putin:', '“non', 'accetto', 'lezioni', 'democrazia', 'paese', 'impedisce', 'parte', 'popolazione', 'persino', 'prendere', 'l’autobus', 'andare', 'lavoro”'], ['video', 'luna', 'stato', 'girato', 'confine', 'Canada,', 'Alaska', 'Russia.', 'fenomeno', 'verifica', 'solo', 'perigeo', '(il', 'punto', 'luna', 'vicina', 'terra)', 'proprio', 'qui', 'possiamo', 'renderci', 'conto', 'grande', 'velocità', 'pianeta', 'muove'], ['Bill', 'Gates', 'detto', 'vaccino', 'Covid-19', '«non', 'sicuro,', 'facciamolo', 'comunque»'], ['«Perakov', 'Natalya,', 'prima', 'donna', 'pilota', 'dell’aviazione', 'ucraina,', 'trovato', 'l’altro', 'giorno', 'morte', 'cieli', 'patria.', '#stopwar»'], ['Enorme', 'ingorgo', 'ponte', 'Kerch.', 'russi', 'pronti', 'lasciare', 'Crimea,', 'dopo', 'distruzione', "dell'aeroporto", 'occupanti,', 'aumentano', 'ora', 'ora'], ['“Eni', 'bloccato', 'prezzo', 'gas', 'Russia', '10', 'anni', 'fa', 'contratto.', 'continua', 'pagarlo', 'quel', 'prezzo.', 'Però', 'applica', 'prezzo', 'determinato', 'borsa', 'Amsterdam.', 'Quindi', 'compra', '2', '(come', 'contratto)', 've', 'rivende', '30', '(grazie', 'borsa', 'pura', 'speculazione).', 'Eni', 'meccanismo', 'utile', '600', 'miliardi', 'primi', '6', 'mesi', "quest'anno.", 'Eni', 'casualmente', 'spostato', 'sede', 'legale', 'Olanda.', "L'Eni", 'compartecipata', 'statale', '30,62%', '(4', 'rotti%', 'ministero', "dell'economia", 'finanze', '26', 'rotti%', 'Cassa', 'Depositi', 'Prestiti).', 'Quindi', 'parte', "quell'utile", '(180', 'MILIARDI!!!)', 'stato', 'italiano,', 'vuole', 'ridarlo', 'clienti', '(Cittadini', 'Imprese).', 'Altro', 'sforamento', 'bilancio', 'PNNR.', 'finita', 'qui.', 'società', 'borsa', 'contratta', 'gas,', 'fatalità', 'americana.', 'Paga', '3%', 'tasse', 'Olanda', 'resto', 'porta', 'chissà', 'dove.', 'contempo', 'però', 'alzando', 'artificiosamente', 'prezzo', 'gas,', 'modo', 'paesi', 'europei', 'costretti', 'comprare', '(al', 'triplo', 'prezzo)', 'gas', 'americano', '(bontà', 'loro,', 'mossi', 'humana', 'pietas', 'ce', 'vendono).', 'vedete', 'Putin', "c'entra", 'tubo', '(scusate', 'battuta).', 'vero', 'nemico', 'Italia.', 'già', 'venuta', 'colica', '?', 'volete', 'continuo...”', 'Mario', 'Giordano'], ['«Oggi', 'aggiungiamo', 'ancora', 'confronto', 'ghiacci', 'artici.', 'Ricordate?', 'ghiaccio', "dell'Artico", 'scomparendo', 'alcuni', 'pseudoscienziati...', 'ehm...', 'oggi', "c'è", 'tanto', 'ghiaccio', 'ce', "n'era", '1989.', 'Trovate', 'differenza', 'entrambe', 'immagini...»'], ['«Vendesi', 'carri', 'armati', 'eBay', 'catturati', 'Ucraina»'], ['Muammar', 'Gheddafi:', '«Creeranno', 'virus', 'soli', 'venderanno', 'antidoti', 'poi', 'finta', 'aver', 'bisogno', 'tempo', 'trovare', 'soluzione', 'quando', 'già', 'ce', "l'hanno»"], ['«Covid', 'Pandemia', 'pilotata.', 'L’Unione', 'europea', 'sapeva.', 'Ecco', 'documenti»'], ['ministero', 'Difesa', 'ripristinato', 'leva', 'obligatoria'], ['Telepass,', 'posizionarlo', 'mai', 'così:', 'paghi', 'doppio', 'ogni', 'volta']]
 clean_docs = keyword_array
@@ -21,21 +20,14 @@ title_array = [['Putin: “non accetto lezioni di democrazia da un paese che imp
 # plot one wordcloud for topics
 def plot_word_cloud(number_of_topics, doc_term_matrix, dictionary):
 
-  print(doc_term_matrix)
-  print(dictionary)
-
   lsa_model = LsiModel(doc_term_matrix, num_topics=number_of_topics, id2word = dictionary) # train model
 
 
   # subplot for every topic
 
-  
-  matrix_side_len = len(doc_term_matrix)
-  matrix_side_len = int( math.ceil(math.sqrt( matrix_side_len) ) ) + 1
-
   i = 1
   for topic_i,words_and_importance in lsa_model.print_topics(num_topics=number_of_topics, num_words=10):
-    #print("TOPIC:",topic_i)
+    print("TOPIC:",topic_i)
     
     word_wordcloud = ''
     for app in words_and_importance.split(" + "):
@@ -43,8 +35,8 @@ def plot_word_cloud(number_of_topics, doc_term_matrix, dictionary):
       value = float(value)
       token = str(token.replace('"',""))
       word_wordcloud += token # wordcloud take a string
-      #print("\t",value,token)
-    #print()
+      print("\t",value,token)
+    print()
     
     wordcloud = WordCloud(background_color="white", max_words=30).generate(word_wordcloud)
     plt.subplot(4, 4, i )
@@ -72,8 +64,8 @@ def lda(data, debug=False):
   possible_numbers_of_topics = [2,3,4,5,6,8,10,12,15,20,25,30]
   #possible_numbers_of_topics = [1,2,3,4,5,6,7]
 
-  #print(doc_term_matrix)
-  #print(dictionary)
+  print(doc_term_matrix)
+  print(dictionary)
 
   val_max = 0
   ind_max = 0
