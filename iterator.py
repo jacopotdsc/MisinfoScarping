@@ -208,12 +208,17 @@ def iterate_on_folders(directory):
                 html_keywords, all_url = nlpm.extract_informations(new_path)
 
                 # saving all url interal to the main text
-                file_json['internal_url'] = all_url
+                #file_json['internal_url'] = all_url
+                #print(file_json['internal_url'])
+                #print(all_url)
 
 
 
                 # creating my dictionary
                 flattend_dict = make_flat_dict(file_json, new_dict)
+                flattend_dict['internal_url.0'] = all_url
+                
+                #print(flattend_dict['internal_url.0'])
 
                 string_to_translate = flattend_dict['claimReviewed.0'][0] # article's title
 
