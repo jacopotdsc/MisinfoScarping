@@ -4,6 +4,7 @@ import json
 from msilib.schema import Directory
 import os
 from pickle import GLOBAL
+from select import select
 from tkinter.tix import DirList
 from tracemalloc import start
 from unittest import result
@@ -30,15 +31,17 @@ import lda
 
 
 #### GLOBAL VARIABLE
-GLOBAL_DIRECTORY0 = "try_folder_scan"
+GLOBAL_DIRECTORY0 = "try_folder_scan"      # LOCAL PATH
 GLOBAL_DIRECTORY1 = "C:\\Users\\pc\\Desktop\\dataset thesys project\\try_folder_scan" 
 GLOBAL_DIRECTORY2 = "C:\\My Web Sites\\factanews\\facta.news" 
 GLOBAL_DIRECTORY3 = "C:\\My Web Sites\\factanews"
 GLOBAL_DIRECTORY4 = "C:\\My Web Sites"  # bigger one
-GLOBAL_DIRECTORY5 = "C:\\misinfo"   
+GLOBAL_DIRECTORY5 = "C:\\misinfo"  
+
+DIRECTORY_PATH_ARRAY= [GLOBAL_DIRECTORY0, GLOBAL_DIRECTORY1, GLOBAL_DIRECTORY2, GLOBAL_DIRECTORY3, GLOBAL_DIRECTORY4, GLOBAL_DIRECTORY5 ] 
 
 # set this variabile to choose to path to analize
-USE_DIRECTORY = GLOBAL_DIRECTORY1
+USE_DIRECTORY = GLOBAL_DIRECTORY0
 BATCH_SIZE = 3    # variabile use to lda and plotting, it's the batch size on the dataset
 
 result = [['“Riduzione', 'popolazione', 'attraverso', 'vaccinazione', 'obbligatoria:', 'soluzione', 'zero', 'emissioni', 'carbonio”'], ['Aldous', 'Huxley:', '«La', 'dittatura', 'perfetta', 'sembianza', 'democrazia,', 'prigione', 'senza', 'muri', 'prigionieri', 'sognerano', 'mai', 'fuggire.', 'sistema', 'schiavitù', 'dove,', 'grazie', 'consumo', 'divertimento,', 'schiavi', 'ameranno', 'schiavitù»'], ["L'appello", 'sangue', '«bimbo', '17', 'mesi»', 'malato', 'leucemia', 'all’ospedale', 'Meyer', 'Firenze'], ['Pfizer', 'realizzato', '«37', 'miliardi', 'dollari»', 'profitto', 'terzo', 'trimestre', '2021'], ['Zelensky', 'fuggito', "dall'Ucraina"], ['auto', 'state', 'bruciate', 'rifugiati', 'ucraini', 'motivazioni', 'politiche', 'legate', 'guerra', 'Russia'], ['MALORE', 'IMPROVVISO', "L'AMBASCIATORE", 'SAUDITA', 'CAIRO,', 'EGITTO.', 'AMBASCIATORE', 'MUHAMMAD', 'QAHTANI', 'MORTO', 'POCHI', 'ISTANTI', 'GRAZIE', 'SIERO', 'MAGICO', 'KAZARO'], ['Gran', 'Sasso', 'svela', '"volto".', 'Riuscite', 'vedere', 'Volto', 'Gigante?', 'tratta', 'Corno', 'Piccolo', 'Gran', 'Sasso', "d'Italia."], ['Rifugiate', 'ucraine', 'aggredite', 'vicino', 'Monaco:', "l'uomo", 'arrestato', 'ammesso', 'fatti,', 'ex', 'soldato', 'ucraino'], ['Numerosi', 'uccelli', 'morti', 'Trieste', 'causa', 'sperimentazione', 'rete', '5G'], ['documento', 'Camera', 'Deputati', 'chiede', 'rassicurazioni', 'sull’ipotesi', 'sperimentare', 'possibile', 'vaccino', 'anti', 'Sars-Cov-2'], ['foto', 'file', 'macchine', 'stata', 'scattata', '12', 'aprile', '2020', 'lungo', "l'autostrada", 'Genova-Savona'], ['crudele', "l'uomo.", "un'immagine", 'grida', 'mamma', 'perso', 'figlio', 'incendio', 'Australia.', 'Senza', 'parole', 'immagini', 'dicono', 'tutto.'], ['farmacista', 'veneto', 'definisce', '«inutili»', 'mascherine', 'distribuite', 'Regione', 'Veneto', 'dopo', 'aver', 'fatto', '«test', "dell'accendino»"], ['foto', 'mostra', 'alberi', 'tagliati.', 'messaggio', 'afferma', 'scena', 'verificata', 'Italia', 'motivo', 'diffusione', '5G'], ['«Obbligare', 'corpo', 'Polizia', 'anticostituzionale,', 'obbligare', 'bambini', 'costituzionalissimo»'], ['Giuseppe', 'Conte', 'mangia', 'ristorante', 'tante', 'persone', 'durante', 'lockdown'], ['cerimonia', 'apertura', 'Olimpiadi', 'Londra', '2012', 'rituale', 'nuovo', 'coronavirus'], ['Posto', 'blocco', 'Cina', 'controlli', 'anti', 'Covid-19'], ['diarrea', 'uccide', '2', 'milioni', 'bambini', 'ogni', 'anno'], ['Burioni,', 'Pregliasco', 'Brusaferro', 'esperti', 'scarsi', 'mondo'], ['foto', 'lupi', 'neve', 'strategia', 'proteggere', 'malati'], ['video', 'donna', 'piange', 'disperata.', '«Governo..di', 'Cialtroni', 'invece', 'aiutare', 'Italiani', 'pensano', 'meglio', 'IMPORTARE', "l'AFRICA»"], ['vaccino', 'funziona:', 'dicembre', 'miliardo', 'dosi', "l'anno."], ['foto', 'Giuseppe', 'Conte', 'senza', 'mascherina', 'stringe', 'mano', 'donna', 'mostra', 'momento', 'Stati', 'Generali', 'Villa', 'Pamphilj'], ['Spiaggia', 'Copacabana', 'Brasile...', '100', 'tombe', 'spiaggia.'], ['«In', 'brasile', 'portano', 'morti', 'covid', 'mano', 'sola»'], ['foto', 'mostra', 'volto', 'donna', 'assalita', 'George', 'Floyd', '2007'], ['foto', 'mostrano', 'folla', 'Berlino', 'protesta', 'restrizioni', 'contrastare', 'pandemia', 'Covid-19'], ['foto', 'mostra', 'folla', 'Berlino', 'protesta', 'restrizioni', 'contrastare', 'pandemia', 'Covid-19'], ['foto', 'mostra', 'folla', 'Berlino', 'protesta', 'restrizioni', 'contrastare', 'pandemia', 'Covid-19'], ['video', 'mostra', 'drone', 'sganciare', 'bomba', 'prima', "dell'esplosione", 'porto', 'Beirut'], ['foto', 'mostrano', 'manifestazione', '“Giornata', 'libertà”', 'Berlino', '2', 'agosto', '2020'], ['Seul', 'Corea', 'Sud.', 'Manifestazioni', 'stato', 'corrotto.', '16', 'agosto', '2020'], ['Grande', 'protesta', 'milioni', 'persone', 'strada', 'South', 'Korea.', 'protesta', 'restrizioni', 'mascherine'], ['foto', 'folla', 'manifestazione', '29', 'agosto', '2020', 'Berlino', 'misure', 'anti', 'covid-19'], ['«Questa', 'incredibile', 'foto', 'segna', 'fine', 'carriera', 'Torero', 'Álvaro', 'Múnera.', 'corso', 'corrida', 'torero', 'crollato', 'rimorso', 'quando', 'accorto', 'toro', 'combatteva', 'nonostante', 'torture', 'venivano', 'inflitte.', 'Nonostante', 'ferivano', 'picador', 'toro', 'mai', 'intenzionato', 'attaccare', "l'", 'uomo.', 'Torero', 'Munera', 'commenta', 'modo', 'quel', 'momento:', '′′E', "all'improvviso", 'guardato', 'toro,', "quell'", 'innocenza', 'animali', 'occhi,', 'guardato', 'supplicarmi', 'combattere.', 'grido', 'giustizia,', 'profondo', 'me.', 'descrivo', 'preghiera', '-', 'confessa,', 'spera,', 'venga', 'perdonato.', 'sentivo', 'peggior', 'merda', 'terra."»'], ['foto', 'folla', 'manifestazione', '29', 'agosto', '2020', 'Berlino', 'misure', 'anti', 'covid-19'], ['video', 'folla', 'manifestazione', '29', 'agosto', '2020', 'Berlino', 'misure', 'anti', 'covid-19'], ['tampone', 'obbligatorio.', 'Nessun', 'test', 'INVASIVO', 'obbligatorio!', 'Nessuno', 'può', 'obbligarvi', 'nemmeno', 'lavoro', 'farlo', 'né', 'comunità.', 'tamponi', 'inutili', 'raffica', 'aumentare', 'casi', 'falsi', 'positivi', 'giustificare', 'secondo', 'lockdown.', 'tampone', 'dichiaratamente', 'INUTILE', 'bugiardino', 'stesso', 'sito', 'Ministero', 'sanità'], ['foto', 'mostra', '«la', 'gentile', 'elegante', 'ventenne', 'aggredito', 'Salvini.', 'Ecco', 'volto', 'Sinistra»'], ['SPAGNA', 'alza', 'ribella', 'dittatura', 'Corona.', 'Quando', 'vedremo', 'immagini', 'noi?'], ['Muammar', 'Gheddafi:', '«Creeranno', 'virus', 'soli', 'venderanno', 'antidoti', 'poi', 'finta', 'aver', 'bisogno', 'tempo', 'trovare', 'soluzione', 'quando', 'già', 'ce', "l'hanno»"], ['video', 'mostra', 'esclusiva', 'momento', "dell'arresto", "dell'attentatore", 'Nizza'], ['«Consiglio', 'supremo', 'difesa', '27', 'ottobre', '2020.', 'Fatelo', 'vedere', 'Covidioti.', 'Altro', 'No', 'Mask,', 'negazionisti?»'], ['«MENTRE', 'TV', '(fake)', 'ITALIANA', 'dice', 'Biden', 'vantaggio,', 'USA', 'giungono', 'altre', 'news».'], ['«ORA,', 'PROVATE', 'PENSARE', 'PERSONA', 'FAMILIARE', 'AMICO,', '....', 'MENTRE', 'PENSIAMO', 'ALTRO!!', 'ORGANIZIAMOCI', '[sic]', 'REGIONE', 'REGIONE,', 'OBBIETTIVO', 'PERSONALE', 'SANITARIO.', 'PRENDEREMO', 'DENTRO', 'FUORI,', 'PRENDEREMO!!', '⛔', 'MASSIMA', 'CONDIVISIONE', '⛔».'], ['contea', 'Fairfax', 'Virginia', 'dato', '100', 'mila', 'voti', 'Joe', 'Biden'], ['«...se', 'ingrandisci', 'vedi', 'l’intubato', 'manichino', 'guarda', 'l’attaccatura', 'capelli', 'disegnati,', 'basta', 'ingrandire', 'l’immagine»'], ['foto', 'Joe', 'Biden', 'abbraccia', 'bacia', 'minori'], ['foto', 'mostrano', 'folla', 'manifestazione', 'pro', 'Trump', '14', 'novembre', '2020'], ['notizia', "dell'inchiesta", 'posti', 'Terapia', 'intensiva', 'Catanzaro', 'pandemia', 'Covid-19'], ['Ricapitolando:', 'CNN', 'dice', 'Margaret', 'Keenan', 'stata', 'prima', 'donna', 'ricevere', 'vaccino', 'Covid', 'scorso', '22', 'ottobre,', 'BBC', 'dice', 'invece', 'signora', 'stata', 'vaccinata', 'scorso', '8', 'dicembre.', 'volte', 'stata', 'vaccinata', 'signora?', 'truffa', 'coronavirus', 'corto', 'comparse'], ['DC', 'Report:', 'Over', '3,000', 'Are', '‘Unable', 'To', 'Perform', 'Normal', 'Daily', 'Activities’', 'After', 'Receiving', 'The', 'COVID-19', 'Vaccine'], ['Evidenziati', 'già', 'danni', 'vaccino', 'covid19'], ['bandiera', '1776', 'attualmente', 'sventolando', 'cima', 'Casa', 'Bianca', 'Washington,', 'DC.', 'segnale', 'RIVOLUZIONE', 'Presidente!', '"i', 'fact', "checker'", 'vogliono', 'pubblichi..."'], ['foto', 'mostra', 'banca', 'Rothschild', 'Parigi', 'fiamme'], ['Buona', 'lettura', 'Fonte', ':', 'Milena', 'Gabanelli', '1994', 'Tesoro', 'siglò', 'accordo', 'quadro', 'Morgan', 'Stanley', 'interno', 'clausola', 'capestro', 'permesso', 'all’istituto', 'finanziario', 'New', 'York', 'chiudere', 'unilateralmente', 'contratti', 'derivati.', 'Morgan', 'Stanley', 'esercitò', '2011,', 'piena', 'tempesta', 'finanziaria', 'l’Italia,', 'ottenne', 'governo', 'Monti', 'pagamento,', 'sull’unghia,', '3', 'miliardi', 'euro', 'interessi', 'titoli', 'derivati.', 'quegli', 'anni,', 'Giacomo', 'Draghi,', 'figlio', 'Mario,', 'carriera', 'proprio', 'Morgan', 'Stanley.', 'Mentre', 'Stato', 'trasferiva', 'miliardi', 'euro', 'banche', 'd’affari', 'guadagnato', 'derivati,', 'Monti', 'Fornero', 'portavano', 'Parlamento', 'provvedimenti', 'sanguinolenti', 'colpito', 'pensionati,', 'lavoratori', 'malati.', 'Sì,', 'malati.', '1998,', 'anno', 'dopo', 'sottoscrizione', 'UE', 'Patto', 'stabilità', 'dato', 'via', 'stagione', 'dell’austerità,', 'Italia', '1381', 'istituti', 'cura:', '61,3%', 'pubblici', '38,7%', 'privati.', '2007', '1197:', '55%', 'pubblici', '45%', 'privati.', '2017', 'scesi', '1000:', '51,8%', 'pubblici', '48,2%', 'privati.', 'effetti', 'privatizzazioni.', 'stato', 'artefici', 'stagione', 'privatizzazioni', 'Italia?', 'Mario', 'Draghi.', 'Draghi,', 'cavallo', 'governi', 'Prodi', 'D’Alema,', 'adoperarsi', 'affinché', 'Benetton', 'acquistassero', 'dall’Iri', 'costo', 'irrisorio', 'Società', 'Autostrade.', 'Oggi', 'fa', 'appello', 'senso', 'responsabilità.', 'Parla', 'speranza,', 'futuro.', 'futuro', 'giovani', 'vedono', 'pregiudicato', 'scelte', 'pubblica', 'opinione', 'italiana', 'dovere', 'ricordare.', '2005', 'Draghi', 'lasciò', 'Goldman', 'Sachs', 'sedersi', 'poltrona', 'prestigiosa', 'Palazzo', 'Koch.', 'sempre', 'lui,', 'stavolta', 'Governatore', 'Bankitalia,', 'autorizzare', 'Monte', 'Paschi', 'Siena', 'acquistare', 'Banca', 'Antonveneta,', 'triplo', 'valore,', 'Banco', 'Santander.', 'debiti', 'contratti', 'MPS', 'scellerata', 'operazione', 'buoni', 'cattivi?', 'Beh,', 'dato', 'buona', 'parte', 'stati', 'coperti', 'denaro', 'pubblico', 'stati', 'certamente', 'debiti', 'buoni.'], ['dati', 'sistema', 'Vaers', 'mostrano', 'Stati', 'Uniti', "d'America", 'almeno', '271', 'persone', 'morte', 'causa', 'vaccini'], ['tudio', 'tedesco', 'rivela', 'mascherina', 'danneggia', '68%', 'bambini', '24', 'tipi', 'diversi', 'disturbi', 'salute'], ["L'Italia", 'primo', 'paese', 'reazioni', 'avverse', 'vaccino'],
@@ -104,12 +107,18 @@ def increment_folder_scannned():
             sleep(VAR_SLEEP)
 
 
-##### START OF CODE ####
+
+
+#########################
+##### START OF CODE #####
+#########################
+
 
 html_array = [] # array which contain html text
 keywords_array = [] # keywords of articles's tile
 title_array = []    # array with title of articles
 
+# trasform a json_file into a flat dictionary
 def make_flat_dict(json_file, new_dict, depth=0):
 
     #print(type(json_file))
@@ -149,11 +158,12 @@ def make_flat_dict(json_file, new_dict, depth=0):
 
     return new_dict
 
-
+# return language from the text
 def detect_language(text):
     DetectorFactory.seed = 0
     return detect(text)
 
+# return an array with all stopwords od the language
 def create_stopwords_array(lang='italian'):
 
     base_words = list( stopwords.words(lang ) )
@@ -185,7 +195,6 @@ def iterate_on_folders(directory):
             result = hc.get_claimReviewed_scheme_in_html_code(new_path)
             
             # result is an array of < [ json_file, ... ], lang >   
-            
             for file_json in result:
 
                 if file_json == []:
@@ -257,16 +266,78 @@ def iterate_on_folders(directory):
             except:
                 continue
     
+# convert a dataset into a csv
+def create_csv(dataframe, selected_path, reduced=False):
 
-def create_csv(dataframe):
-    if USE_DIRECTORY == GLOBAL_DIRECTORY1:
-        dataframe.to_csv("data_prova_2.csv")
+    csv_name = selected_path + " - data"
+
+    if selected_path == '0':
+        csv_name += "_small"
+
+    if reduced == False:
+        csv_name += '.csv'
     else:
-        dataframe.to_csv("data.csv")
-    
-def create_dataset(data_array):
-    return pd.DataFrame(data_array).sort_index(axis=1)
+        csv_name += '_reduced.csv'
 
+    dataframe.to_csv(csv_name)
+    
+
+# return a dataset with minium information
+def reduce_and_clear_dataset(data):
+    # 'claimReviewed.0' is the title, 'alternateName.1' is the label
+    reduced_dataset = data[['claimReviewed.0', 'alternateName.1']]
+
+    # rename columns
+    reduced_dataset.rename(columns = {'claimReviewed.0':'title'}, inplace = True)
+    reduced_dataset.rename(columns = {'alternateName.1':'label'}, inplace = True)
+
+    # now adding a columns for cleared titles
+    cleared_title_array = []
+
+    for ind in data.index:
+        title_string = reduced_dataset['title'][ind][0]
+        my_stopwords = nlpm.get_stopwords('italian')
+
+        # clearing title from stopwords
+
+        cleared_title = ''
+        for word in title_string.split():
+            if nlpm.check_if_contain_html_words_or_stopwords(word, my_stopwords) == False:
+                cleared_title += word + " "
+       
+        cleared_title_array.append(cleared_title)
+
+        # droupout from the array title and labels 
+        reduced_dataset['title'][ind] = reduced_dataset['title'][ind][0]
+        reduced_dataset['label'][ind] = reduced_dataset['label'][ind][0]
+
+
+    new_dataframe= reduced_dataset.assign(cleared_title=cleared_title_array)
+    
+    # reindex for cosmetics
+    new_dataframe = new_dataframe.reindex(columns=['title', 'cleared_title', 'label'])
+
+    return new_dataframe
+
+# create a dataset
+def create_dataset(data_array, reduced=False):
+    my_dataset = pd.DataFrame(data_array).sort_index(axis=1)
+
+    if reduced == False:
+        return my_dataset
+
+    if reduced == True:
+
+        # return dataset with only useful information
+        return reduce_and_clear_dataset(my_dataset)
+
+
+
+#########################
+##### PLOT FUNCTION #####
+#########################
+
+# plot pie-chart from the dataset
 def plot_language_pie_chart(data):
 
     data_to_plot = data['lang']
@@ -281,6 +352,7 @@ def plot_language_pie_chart(data):
     
     nlpm.create_pie_chart(labels, value)
     
+# draw all plots
 def plot_all(my_array, data):
 
     # plotting word_cloud in a matrix msl X msl,   msl = matrix_side_len
@@ -318,7 +390,7 @@ def plot_all(my_array, data):
 
     plt.show()
 
-
+# plot wordclouds of the array [ [], [], ...]
 def plot_wordcloud(my_array):
     t = 0
     matrix_side_len = len(my_array)
@@ -338,9 +410,15 @@ def plot_wordcloud(my_array):
 
 def main():
 
+    print('\navaible path: \nGLOBAL_DIRECTORY0 = "try_folder_scan"      # LOCAL PATH \nGLOBAL_DIRECTORY1 = "C:\\Users\\pc\\Desktop\\dataset thesys project\\try_folder_scan" \nGLOBAL_DIRECTORY2 = "C:\\My Web Sites\\factanews\\facta.news" \nGLOBAL_DIRECTORY3 = "C:\\My Web Sites\\factanews"\nGLOBAL_DIRECTORY4 = "C:\\My Web Sites"  # bigger one\nGLOBAL_DIRECTORY5 = "C:\\misinfo"  ')
+   
+    selected_path_index = int( input("\nselect number for path {0, 1, 2, 3, 4, 5 }: ") )
+    selected_path = DIRECTORY_PATH_ARRAY[selected_path_index]
+    print("\npath selected: " + selected_path)
+
     start_time = time.time()
 
-    iterate_on_folders(USE_DIRECTORY)
+    iterate_on_folders(selected_path)
 
     end_time = time.time() 
     total_time = end_time - start_time
@@ -355,13 +433,17 @@ def main():
 
 
     dataset = create_dataset(html_array)
-    create_csv(dataset)
+    dataset_reduced = create_dataset(html_array, True)
+
+    create_csv(dataset, str(selected_path_index) )
+    create_csv(dataset_reduced, str(selected_path_index), True)
     
+
 
     start_plot_time = time.time()
 
-    print(keywords_array)
-    plot_all(keywords_array, dataset)
+    #print(keywords_array)
+    #plot_all(keywords_array, dataset)
 
     actual_time = time.time()
     plot_time = actual_time- start_plot_time
@@ -371,7 +453,7 @@ def main():
 
     actual_time = time.time()
 
-    
+    '''
     items_scanned = 0
     
     number_of_topics, dictionary, doc_term_matrix, = lda.lda(keywords_array, True)
@@ -384,6 +466,7 @@ def main():
     
     plot_time = time.time() - actual_time
     total_time = time.time()
+    '''
 
     '''
     result = [['“Riduzione', 'popolazione', 'attraverso', 'vaccinazione', 'obbligatoria:', 'soluzione', 'zero', 'emissioni', 'carbonio”'], ['Aldous', 'Huxley:', '«La', 'dittatura', 'perfetta', 'sembianza', 'democrazia,', 'prigione', 'senza', 'muri', 'prigionieri', 'sognerano', 'mai', 'fuggire.', 'sistema', 'schiavitù', 'dove,', 'grazie', 'consumo', 'divertimento,', 'schiavi', 'ameranno', 'schiavitù»'], ["L'appello", 'sangue', '«bimbo', '17', 'mesi»', 'malato', 'leucemia', 'all’ospedale', 'Meyer', 'Firenze'], ['Pfizer', 'realizzato', '«37', 'miliardi', 'dollari»', 'profitto', 'terzo', 'trimestre', '2021'], ['Zelensky', 'fuggito', "dall'Ucraina"], ['auto', 'state', 'bruciate', 'rifugiati', 'ucraini', 'motivazioni', 'politiche', 'legate', 'guerra', 'Russia'], ['MALORE', 'IMPROVVISO', "L'AMBASCIATORE", 'SAUDITA', 'CAIRO,', 'EGITTO.', 'AMBASCIATORE', 'MUHAMMAD', 'QAHTANI', 'MORTO', 'POCHI', 'ISTANTI', 'GRAZIE', 'SIERO', 'MAGICO', 'KAZARO'], ['Gran', 'Sasso', 'svela', '"volto".', 'Riuscite', 'vedere', 'Volto', 'Gigante?', 'tratta', 'Corno', 'Piccolo', 'Gran', 'Sasso', "d'Italia."], ['Rifugiate', 'ucraine', 'aggredite', 'vicino', 'Monaco:', "l'uomo", 'arrestato', 'ammesso', 'fatti,', 'ex', 'soldato', 'ucraino'], ['Numerosi', 'uccelli', 'morti', 'Trieste', 'causa', 'sperimentazione', 'rete', '5G'], ['documento', 'Camera', 'Deputati', 'chiede', 'rassicurazioni', 'sull’ipotesi', 'sperimentare', 'possibile', 'vaccino', 'anti', 'Sars-Cov-2'], ['foto', 'file', 'macchine', 'stata', 'scattata', '12', 'aprile', '2020', 'lungo', "l'autostrada", 'Genova-Savona'], ['crudele', "l'uomo.", "un'immagine", 'grida', 'mamma', 'perso', 'figlio', 'incendio', 'Australia.', 'Senza', 'parole', 'immagini', 'dicono', 'tutto.'], ['farmacista', 'veneto', 'definisce', '«inutili»', 'mascherine', 'distribuite', 'Regione', 'Veneto', 'dopo', 'aver', 'fatto', '«test', "dell'accendino»"], ['foto', 'mostra', 'alberi', 'tagliati.', 'messaggio', 'afferma', 'scena', 'verificata', 'Italia', 'motivo', 'diffusione', '5G'], ['«Obbligare', 'corpo', 'Polizia', 'anticostituzionale,', 'obbligare', 'bambini', 'costituzionalissimo»'], ['Giuseppe', 'Conte', 'mangia', 'ristorante', 'tante', 'persone', 'durante', 'lockdown'], ['cerimonia', 'apertura', 'Olimpiadi', 'Londra', '2012', 'rituale', 'nuovo', 'coronavirus'], ['Posto', 'blocco', 'Cina', 'controlli', 'anti', 'Covid-19'], ['diarrea', 'uccide', '2', 'milioni', 'bambini', 'ogni', 'anno'], ['Burioni,', 'Pregliasco', 'Brusaferro', 'esperti', 'scarsi', 'mondo'], ['foto', 'lupi', 'neve', 'strategia', 'proteggere', 'malati'], ['video', 'donna', 'piange', 'disperata.', '«Governo..di', 'Cialtroni', 'invece', 'aiutare', 'Italiani', 'pensano', 'meglio', 'IMPORTARE', "l'AFRICA»"], ['vaccino', 'funziona:', 'dicembre', 'miliardo', 'dosi', "l'anno."], ['foto', 'Giuseppe', 'Conte', 'senza', 'mascherina', 'stringe', 'mano', 'donna', 'mostra', 'momento', 'Stati', 'Generali', 'Villa', 'Pamphilj'], ['Spiaggia', 'Copacabana', 'Brasile...', '100', 'tombe', 'spiaggia.'], ['«In', 'brasile', 'portano', 'morti', 'covid', 'mano', 'sola»'], ['foto', 'mostra', 'volto', 'donna', 'assalita', 'George', 'Floyd', '2007'], ['foto', 'mostrano', 'folla', 'Berlino', 'protesta', 'restrizioni', 'contrastare', 'pandemia', 'Covid-19'], ['foto', 'mostra', 'folla', 'Berlino', 'protesta', 'restrizioni', 'contrastare', 'pandemia', 'Covid-19'], ['foto', 'mostra', 'folla', 'Berlino', 'protesta', 'restrizioni', 'contrastare', 'pandemia', 'Covid-19'], ['video', 'mostra', 'drone', 'sganciare', 'bomba', 'prima', "dell'esplosione", 'porto', 'Beirut'], ['foto', 'mostrano', 'manifestazione', '“Giornata', 'libertà”', 'Berlino', '2', 'agosto', '2020'], ['Seul', 'Corea', 'Sud.', 'Manifestazioni', 'stato', 'corrotto.', '16', 'agosto', '2020'], ['Grande', 'protesta', 'milioni', 'persone', 'strada', 'South', 'Korea.', 'protesta', 'restrizioni', 'mascherine'], ['foto', 'folla', 'manifestazione', '29', 'agosto', '2020', 'Berlino', 'misure', 'anti', 'covid-19'], ['«Questa', 'incredibile', 'foto', 'segna', 'fine', 'carriera', 'Torero', 'Álvaro', 'Múnera.', 'corso', 'corrida', 'torero', 'crollato', 'rimorso', 'quando', 'accorto', 'toro', 'combatteva', 'nonostante', 'torture', 'venivano', 'inflitte.', 'Nonostante', 'ferivano', 'picador', 'toro', 'mai', 'intenzionato', 'attaccare', "l'", 'uomo.', 'Torero', 'Munera', 'commenta', 'modo', 'quel', 'momento:', '′′E', "all'improvviso", 'guardato', 'toro,', "quell'", 'innocenza', 'animali', 'occhi,', 'guardato', 'supplicarmi', 'combattere.', 'grido', 'giustizia,', 'profondo', 'me.', 'descrivo', 'preghiera', '-', 'confessa,', 'spera,', 'venga', 'perdonato.', 'sentivo', 'peggior', 'merda', 'terra."»'], ['foto', 'folla', 'manifestazione', '29', 'agosto', '2020', 'Berlino', 'misure', 'anti', 'covid-19'], ['video', 'folla', 'manifestazione', '29', 'agosto', '2020', 'Berlino', 'misure', 'anti', 'covid-19'], ['tampone', 'obbligatorio.', 'Nessun', 'test', 'INVASIVO', 'obbligatorio!', 'Nessuno', 'può', 'obbligarvi', 'nemmeno', 'lavoro', 'farlo', 'né', 'comunità.', 'tamponi', 'inutili', 'raffica', 'aumentare', 'casi', 'falsi', 'positivi', 'giustificare', 'secondo', 'lockdown.', 'tampone', 'dichiaratamente', 'INUTILE', 'bugiardino', 'stesso', 'sito', 'Ministero', 'sanità'], ['foto', 'mostra', '«la', 'gentile', 'elegante', 'ventenne', 'aggredito', 'Salvini.', 'Ecco', 'volto', 'Sinistra»'], ['SPAGNA', 'alza', 'ribella', 'dittatura', 'Corona.', 'Quando', 'vedremo', 'immagini', 'noi?'], ['Muammar', 'Gheddafi:', '«Creeranno', 'virus', 'soli', 'venderanno', 'antidoti', 'poi', 'finta', 'aver', 'bisogno', 'tempo', 'trovare', 'soluzione', 'quando', 'già', 'ce', "l'hanno»"], ['video', 'mostra', 'esclusiva', 'momento', "dell'arresto", "dell'attentatore", 'Nizza'], ['«Consiglio', 'supremo', 'difesa', '27', 'ottobre', '2020.', 'Fatelo', 'vedere', 'Covidioti.', 'Altro', 'No', 'Mask,', 'negazionisti?»'], ['«MENTRE', 'TV', '(fake)', 'ITALIANA', 'dice', 'Biden', 'vantaggio,', 'USA', 'giungono', 'altre', 'news».'], ['«ORA,', 'PROVATE', 'PENSARE', 'PERSONA', 'FAMILIARE', 'AMICO,', '....', 'MENTRE', 'PENSIAMO', 'ALTRO!!', 'ORGANIZIAMOCI', '[sic]', 'REGIONE', 'REGIONE,', 'OBBIETTIVO', 'PERSONALE', 'SANITARIO.', 'PRENDEREMO', 'DENTRO', 'FUORI,', 'PRENDEREMO!!', '⛔', 'MASSIMA', 'CONDIVISIONE', '⛔».'], ['contea', 'Fairfax', 'Virginia', 'dato', '100', 'mila', 'voti', 'Joe', 'Biden'], ['«...se', 'ingrandisci', 'vedi', 'l’intubato', 'manichino', 'guarda', 'l’attaccatura', 'capelli', 'disegnati,', 'basta', 'ingrandire', 'l’immagine»'], ['foto', 'Joe', 'Biden', 'abbraccia', 'bacia', 'minori'], ['foto', 'mostrano', 'folla', 'manifestazione', 'pro', 'Trump', '14', 'novembre', '2020'], ['notizia', "dell'inchiesta", 'posti', 'Terapia', 'intensiva', 'Catanzaro', 'pandemia', 'Covid-19'], ['Ricapitolando:', 'CNN', 'dice', 'Margaret', 'Keenan', 'stata', 'prima', 'donna', 'ricevere', 'vaccino', 'Covid', 'scorso', '22', 'ottobre,', 'BBC', 'dice', 'invece', 'signora', 'stata', 'vaccinata', 'scorso', '8', 'dicembre.', 'volte', 'stata', 'vaccinata', 'signora?', 'truffa', 'coronavirus', 'corto', 'comparse'], ['DC', 'Report:', 'Over', '3,000', 'Are', '‘Unable', 'To', 'Perform', 'Normal', 'Daily', 'Activities’', 'After', 'Receiving', 'The', 'COVID-19', 'Vaccine'], ['Evidenziati', 'già', 'danni', 'vaccino', 'covid19'], ['bandiera', '1776', 'attualmente', 'sventolando', 'cima', 'Casa', 'Bianca', 'Washington,', 'DC.', 'segnale', 'RIVOLUZIONE', 'Presidente!', '"i', 'fact', "checker'", 'vogliono', 'pubblichi..."'], ['foto', 'mostra', 'banca', 'Rothschild', 'Parigi', 'fiamme'], ['Buona', 'lettura', 'Fonte', ':', 'Milena', 'Gabanelli', '1994', 'Tesoro', 'siglò', 'accordo', 'quadro', 'Morgan', 'Stanley', 'interno', 'clausola', 'capestro', 'permesso', 'all’istituto', 'finanziario', 'New', 'York', 'chiudere', 'unilateralmente', 'contratti', 'derivati.', 'Morgan', 'Stanley', 'esercitò', '2011,', 'piena', 'tempesta', 'finanziaria', 'l’Italia,', 'ottenne', 'governo', 'Monti', 'pagamento,', 'sull’unghia,', '3', 'miliardi', 'euro', 'interessi', 'titoli', 'derivati.', 'quegli', 'anni,', 'Giacomo', 'Draghi,', 'figlio', 'Mario,', 'carriera', 'proprio', 'Morgan', 'Stanley.', 'Mentre', 'Stato', 'trasferiva', 'miliardi', 'euro', 'banche', 'd’affari', 'guadagnato', 'derivati,', 'Monti', 'Fornero', 'portavano', 'Parlamento', 'provvedimenti', 'sanguinolenti', 'colpito', 'pensionati,', 'lavoratori', 'malati.', 'Sì,', 'malati.', '1998,', 'anno', 'dopo', 'sottoscrizione', 'UE', 'Patto', 'stabilità', 'dato', 'via', 'stagione', 'dell’austerità,', 'Italia', '1381', 'istituti', 'cura:', '61,3%', 'pubblici', '38,7%', 'privati.', '2007', '1197:', '55%', 'pubblici', '45%', 'privati.', '2017', 'scesi', '1000:', '51,8%', 'pubblici', '48,2%', 'privati.', 'effetti', 'privatizzazioni.', 'stato', 'artefici', 'stagione', 'privatizzazioni', 'Italia?', 'Mario', 'Draghi.', 'Draghi,', 'cavallo', 'governi', 'Prodi', 'D’Alema,', 'adoperarsi', 'affinché', 'Benetton', 'acquistassero', 'dall’Iri', 'costo', 'irrisorio', 'Società', 'Autostrade.', 'Oggi', 'fa', 'appello', 'senso', 'responsabilità.', 'Parla', 'speranza,', 'futuro.', 'futuro', 'giovani', 'vedono', 'pregiudicato', 'scelte', 'pubblica', 'opinione', 'italiana', 'dovere', 'ricordare.', '2005', 'Draghi', 'lasciò', 'Goldman', 'Sachs', 'sedersi', 'poltrona', 'prestigiosa', 'Palazzo', 'Koch.', 'sempre', 'lui,', 'stavolta', 'Governatore', 'Bankitalia,', 'autorizzare', 'Monte', 'Paschi', 'Siena', 'acquistare', 'Banca', 'Antonveneta,', 'triplo', 'valore,', 'Banco', 'Santander.', 'debiti', 'contratti', 'MPS', 'scellerata', 'operazione', 'buoni', 'cattivi?', 'Beh,', 'dato', 'buona', 'parte', 'stati', 'coperti', 'denaro', 'pubblico', 'stati', 'certamente', 'debiti', 'buoni.'], ['dati', 'sistema', 'Vaers', 'mostrano', 'Stati', 'Uniti', "d'America", 'almeno', '271', 'persone', 'morte', 'causa', 'vaccini'], ['tudio', 'tedesco', 'rivela', 'mascherina', 'danneggia', '68%', 'bambini', '24', 'tipi', 'diversi', 'disturbi', 'salute'], ["L'Italia", 'primo', 'paese', 'reazioni', 'avverse', 'vaccino'],
@@ -403,7 +486,7 @@ def main():
 
     print(plot_time)
     print(total_time)
-
+    print("--- done ---")
 
 main()
 

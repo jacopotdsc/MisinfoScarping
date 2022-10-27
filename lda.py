@@ -34,7 +34,7 @@ def divide_docs_into_topics(number_of_topics, doc_term_matrix, dictionary):
     docs_per_topic = {k:np.array(v) for k,v in docs_per_topic.items()}
     return docs_per_topic
 
-
+# plot a wordcloud
 def plot_word_cloud(docs_per_topic, clean_docs):
     for topic,docs_ids in docs_per_topic.items():
         print("TOPIC:",topic)
@@ -54,7 +54,6 @@ def plot_word_cloud(docs_per_topic, clean_docs):
             plt.show()
 
         print("\n")
-
 
 
 # return number of optimal topics and a matrix and dictionary used for plot word cloud
@@ -94,7 +93,7 @@ def lda(data, debug=False):
         print("LSA for #topics:",number_of_topics)
         lsa_model = LsiModel(doc_term_matrix, num_topics=number_of_topics, id2word = dictionary) # train model
 
-        coherence_model = CoherenceModel(model=lsa_model, texts=clean_docs, dictionary=dictionary, coherence='c_v')
+        coherence_model = CoherenceModel(model=lsa_model, texts=clean_docs, dictionary=dictionary, coherence='c_v') # calculate coherence_model
         coherence_values.append(coherence_model.get_coherence())
 
         #print(type(coherence_values))
@@ -104,7 +103,7 @@ def lda(data, debug=False):
         if index >= 4:
             ind_max = 4
 
-        if coherence_values[index] > coherence_values[ind_max] and ind_max != 0:
+        if coherence_values[index] > coherence_values[ind_max] and ind_max != 0:  # to find max value 
             ind_max = index
             val_max = coherence_values[index]
 
@@ -121,7 +120,7 @@ def lda(data, debug=False):
     print(coherence_values) 
   
 
-    #FS: Compute mean of coherences
+    # Compute mean of coherences
     coherence_values_mean = np.mean(all_coherence_values,axis=0)
     coherence_values_std = np.std(all_coherence_values,axis=0)
     z = 1.96
@@ -129,13 +128,22 @@ def lda(data, debug=False):
     coherence_values_confidence_interval_left = coherence_values_mean - dev
     coherence_values_confidence_interval_right = coherence_values_mean + dev
 
+    '''
     plt.plot(possible_numbers_of_topics, coherence_values)
     plt.xlabel("Number of Topics")
     plt.ylabel("Coherence score")
     plt.legend(("Coherence values"), loc='best')
     plt.show()
+    '''
+    plt.plot(possible_numbers_of_topics, coherence_values_mean)
+    plt.plot(possible_numbers_of_topics, coherence_values_confidence_interval_left)
+    plt.plot(possible_numbers_of_topics, coherence_values_confidence_interval_right)
+    plt.xlabel("Number of Topics")
+    plt.ylabel("Coherence score")
+    plt.legend(["Coherence values", "Left CI", "Right CI"], loc='best')
+    plt.show()
   
-    return possible_numbers_of_topics[ind_max], dictionary, doc_term_matrix
+    return possible_numbers_of_topics[ind_max], dictionary, doc_term_matrix   # variable used for next costructor on LSI
 
 
 

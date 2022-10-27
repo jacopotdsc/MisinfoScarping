@@ -26,7 +26,7 @@ HTML_WORDS      = ["<a", "<p>", "<a href", ">", "<", "/", "href", "https", "=", 
 
 
 
-# True if there is html word or stopwords, else False
+# True if there are stopwords, else False
 def check_if_contain_html_words_or_stopwords(word, my_stopwords):
     
     for sw in my_stopwords:
@@ -89,7 +89,6 @@ def clear_html_text(text_to_clear):
 
     return text
 
-
 # create and show a pie-char given data and their labels 
 def create_pie_chart(my_labels, data):
 
@@ -100,15 +99,15 @@ def create_pie_chart(my_labels, data):
     # show plot
     plt.show()
 
-
+# return an array with all stopwords of the language
 def get_stopwords(language):
   return stopwords.words(language)
 
-
+# return keywords of the text and all url inside the main text
 def extract_informations(html_file, max_common_words = 15, language='italian'):
 
    # print("-- opening path: " + html_file)
-    html_code = open(html_file,'r',errors="ignore", encoding='UTF-8')
+    html_code = open(html_file,'r',errors="ignore", encoding="UTF-8")
 
 
     main_text_html_version = extract_main_text(html_code)
