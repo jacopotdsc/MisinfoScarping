@@ -3,11 +3,12 @@ import chunk
 import json
 from msilib.schema import Directory
 import os
-from pickle import GLOBAL
+from pickle import FALSE, GLOBAL
 from select import select
 from tkinter.tix import DirList
 from tracemalloc import start
 from unittest import result
+from venv import create
 from xml.dom.expatbuilder import DOCUMENT_NODE
 from langdetect import detect, DetectorFactory
 from wordcloud import WordCloud
@@ -24,6 +25,7 @@ import math
 import nltk
 from nltk.stem import WordNetLemmatizer
 import numpy as np
+from nltk.stem import WordNetLemmatizer
 
 import html_check as hc
 import nlp_module as nlpm
@@ -286,6 +288,46 @@ def create_csv(dataframe, selected_path, reduced=False):
 
     dataframe.to_csv(csv_name)
     
+# clear label, return < label, label_other_info >
+def clear_label(label):
+    splitted_label = label.split(",")
+
+    #print(splitted_label)
+
+    if len( splitted_label ) > 1:    # there are other information, else I split on .
+        return [ word.lower() for word in splitted_label ]
+
+    splitted_label = label.split(".")   # elem in position 1 is an empty string
+    
+    if len(splitted_label) > 1:
+        return [ word.lower() for word in splitted_label ]
+    else:
+        return [splitted_label[0].lower(), ""]
+
+def clear_title(title):
+
+    # clearing title from stopwords
+    my_stopwords = nlpm.get_stopwords('italian')
+
+    cleared_title = ''
+    for word in title.split():
+        if nlpm.check_if_contain_html_words_or_stopwords(word, my_stopwords) == False:
+            cleared_title += word + " "
+
+    # lemmatizing title
+    lemmatized_title = ''
+    lemmatizer = WordNetLemmatizer()
+    for word in cleared_title.split(" "):
+        lemmatized_word = lemmatizer.lemmatize(word)
+        lemmatized_title += lemmatized_word + " "
+    
+    '''
+    print(title)
+    print(cleared_title)
+    print(lemmatized_title)
+    print()
+    '''
+    return [cleared_title.lower(), lemmatized_title.lower()]
 
 # return a dataset with minium information
 def reduce_and_clear_dataset(data):
@@ -297,30 +339,38 @@ def reduce_and_clear_dataset(data):
     reduced_dataset.rename(columns = {'alternateName.1':'label'}, inplace = True)
 
     # now adding a columns for cleared titles
-    cleared_title_array = []
+    cleared_title_no_sw_array = []
+    cleared_title_no_sw_lmt_array = []
+    cleared_label_array = []
+    cleared_label_other_info_array = []
 
     for ind in data.index:
         title_string = reduced_dataset['title'][ind][0]
-        my_stopwords = nlpm.get_stopwords('italian')
+        label_string = reduced_dataset['label'][ind][0]
 
-        # clearing title from stopwords
+        new_title = clear_title(title_string)   # return [ 'title', 'title_no_sw', 'title_no_sw_lmt' ]
+        new_label = clear_label(label_string)   # return [ label, label_other_info ]
 
-        cleared_title = ''
-        for word in title_string.split():
-            if nlpm.check_if_contain_html_words_or_stopwords(word, my_stopwords) == False:
-                cleared_title += word + " "
-       
-        cleared_title_array.append(cleared_title)
+        #print(new_title)
+        cleared_title_no_sw_array.append(new_title[0])  # title with no stopwords
+        cleared_title_no_sw_lmt_array.append(new_title[1])  # title with no stopwords and lemmatized
+        cleared_label_array.append(new_label[0])  # label
+        cleared_label_other_info_array.append(new_label[1]) # other info
 
         # droupout from the array title and labels 
         reduced_dataset['title'][ind] = reduced_dataset['title'][ind][0]
         reduced_dataset['label'][ind] = reduced_dataset['label'][ind][0]
 
 
-    new_dataframe= reduced_dataset.assign(cleared_title=cleared_title_array)
-    
+    # adding new columns
+    new_dataframe = reduced_dataset.assign(title_no_sw = cleared_title_no_sw_array)
+    new_dataframe = new_dataframe.assign(title_no_sw_lmt = cleared_title_no_sw_lmt_array)
+    new_dataframe = new_dataframe.assign(label = cleared_label_array)
+    new_dataframe = new_dataframe.assign(label_other_info = cleared_label_other_info_array)
+
+
     # reindex for cosmetics
-    new_dataframe = new_dataframe.reindex(columns=['title', 'cleared_title', 'label'])
+    new_dataframe = new_dataframe.reindex(columns=['title', 'title_no_sw', 'title_no_sw_lmt', 'label', 'label_other_info'])
 
     return new_dataframe
 
@@ -440,8 +490,17 @@ def main():
     dataset = create_dataset(html_array)
     dataset_reduced = create_dataset(html_array, True)
 
-    create_csv(dataset, str(selected_path_index) )
-    create_csv(dataset_reduced, str(selected_path_index), True)
+    created = False
+    while created == False:
+        
+        try:
+            create_csv(dataset, str(selected_path_index) )
+            create_csv(dataset_reduced, str(selected_path_index), True)
+        except:
+            input("\nWARNING: close csv file! later press any key to continue ")
+            continue
+
+        created = True
     
 
 
