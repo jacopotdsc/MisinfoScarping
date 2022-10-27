@@ -290,19 +290,19 @@ def create_csv(dataframe, selected_path, reduced=False):
     
 # clear label, return < label, label_other_info >
 def clear_label(label):
-    splitted_label = label.split(",")
+    splitted_label = label.split(".")
 
     #print(splitted_label)
 
     if len( splitted_label ) > 1:    # there are other information, else I split on .
         return [ word.lower() for word in splitted_label ]
 
-    splitted_label = label.split(".")   # elem in position 1 is an empty string
+    splitted_label = label.split(",")   # elem in position 1 is an empty string
     
     if len(splitted_label) > 1:
         return [ word.lower() for word in splitted_label ]
     else:
-        return [splitted_label[0].lower(), ""]
+        return [label.lower(), ""]
 
 def clear_title(title):
 
