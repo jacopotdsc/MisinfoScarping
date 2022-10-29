@@ -226,7 +226,9 @@ def iterate_on_folders(directory):
 
                 language = detect_language(string_to_translate)
                 flattend_dict['lang'] = language
-                
+                flattend_dict['path'] = new_path
+                #print(flattend_dict['directory'])
+                #print(flattend_dict)
 
                 # append final dictionary
                 html_array.append(flattend_dict)
@@ -350,8 +352,8 @@ def reduce_and_clear_dataset(data):
         new_label = clear_label(label_string)   # return [ label, label_other_info ]
 
         #print(new_title)
-        cleared_title_no_sw_array.append(new_title[0])  # title with no stopwords
-        cleared_title_no_sw_lmt_array.append(new_title[1])  # title with no stopwords and lemmatized
+        cleared_title_no_sw_array.append(new_title[0].lower())  # title with no stopwords
+        cleared_title_no_sw_lmt_array.append(new_title[1].lower())  # title with no stopwords and lemmatized
         cleared_label_array.append(new_label[0])  # label
         cleared_label_other_info_array.append(new_label[1]) # other info
 
