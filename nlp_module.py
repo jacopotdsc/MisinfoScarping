@@ -77,8 +77,9 @@ def extract_main_text(html_code):
 # take html_main_text and return text without html tags
 def clear_html_text(text_to_clear):
 
-    soup = BeautifulSoup(text_to_clear, features="html.parser")
-    
+    #soup = BeautifulSoup(text_to_clear, features="html.parser")
+    soup = BeautifulSoup(text_to_clear, features="html5lib")  
+
     for script in soup(["scipt", "style"]):
         script.extract()       # rip out all thing which I don't need
 

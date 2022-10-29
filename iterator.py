@@ -232,9 +232,7 @@ def iterate_on_folders(directory):
                 html_array.append(flattend_dict)
 
                 # append title for word-cloud
-                doc_title = flattend_dict['claimReviewed.0'][0]
-
-                
+                doc_title = flattend_dict['claimReviewed.0'][0]           
                 
                 #### word-cloud part , search for keyword
 
@@ -286,7 +284,7 @@ def create_csv(dataframe, selected_path, reduced=False):
     else:
         csv_name += '_reduced.csv'
 
-    dataframe.to_csv(csv_name)
+    dataframe.to_csv(csv_name, encoding="utf-8-sig")
     
 # clear label, return < label, label_other_info >
 def clear_label(label):
@@ -517,6 +515,14 @@ def main():
 
     actual_time = time.time()
 
+    '''
+    print(dataset_reduced['title'])
+    print()
+    print(dataset_reduced['title_no_sw'])
+    print()
+    print(dataset_reduced['title_no_sw_lmt'])
+    print()
+    '''
     '''
     items_scanned = 0
     
