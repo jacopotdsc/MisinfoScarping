@@ -27,6 +27,8 @@ from nltk.stem import WordNetLemmatizer
 import numpy as np
 from nltk.stem import WordNetLemmatizer
 
+from datetime import datetime
+
 import html_check as hc
 import nlp_module as nlpm
 import lda
@@ -39,8 +41,9 @@ GLOBAL_DIRECTORY2 = "C:\\My Web Sites\\factanews\\facta.news"
 GLOBAL_DIRECTORY3 = "C:\\My Web Sites\\factanews"
 GLOBAL_DIRECTORY4 = "C:\\My Web Sites"  # bigger one
 GLOBAL_DIRECTORY5 = "C:\\misinfo"  
+GLOBAL_DIRECTORY6 = "C:\\full facta"
 
-DIRECTORY_PATH_ARRAY= [GLOBAL_DIRECTORY0, GLOBAL_DIRECTORY1, GLOBAL_DIRECTORY2, GLOBAL_DIRECTORY3, GLOBAL_DIRECTORY4, GLOBAL_DIRECTORY5 ] 
+DIRECTORY_PATH_ARRAY= [GLOBAL_DIRECTORY0, GLOBAL_DIRECTORY1, GLOBAL_DIRECTORY2, GLOBAL_DIRECTORY3, GLOBAL_DIRECTORY4, GLOBAL_DIRECTORY5, GLOBAL_DIRECTORY6 ] 
 
 # set this variabile to choose to path to analize
 USE_DIRECTORY = GLOBAL_DIRECTORY0
@@ -329,6 +332,18 @@ def clear_title(title):
     '''
     return [cleared_title.lower(), lemmatized_title.lower()]
 
+
+def calculate_delay_review(date1, date2):
+    time_1 = datetime.strptime(str(date1[0]),"%Y-%m-%d")
+    time_2 = datetime.strptime(str(date2[0]),"%Y-%m-%d")
+
+    time_interval = time_1 - time_2
+    time_interval = str(time_interval).split(" ")[0]
+    
+    
+    return str(time_interval)
+
+
 # return a dataset with minium information
 def reduce_and_clear_dataset(data):
     # 'claimReviewed.0' is the title, 'alternateName.1' is the label
@@ -343,22 +358,42 @@ def reduce_and_clear_dataset(data):
     cleared_title_no_sw_lmt_array = []
     cleared_label_array = []
     cleared_label_other_info_array = []
+    delay_review_array = []
 
     for ind in data.index:
         title_string = reduced_dataset['title'][ind][0]
         label_string = reduced_dataset['label'][ind][0]
+        date1 = data['datePublished.0'][0]
+        date2 = data['datePublished.1'][0]
 
+        new_delay_review = calculate_delay_review(date1, date2)
         new_title = clear_title(title_string)   # return [ 'title', 'title_no_sw', 'title_no_sw_lmt' ]
         new_label = clear_label(label_string)   # return [ label, label_other_info ]
 
         #print(new_title)
         cleared_title_no_sw_array.append(new_title[0].lower())  # title with no stopwords
         cleared_title_no_sw_lmt_array.append(new_title[1].lower())  # title with no stopwords and lemmatized
-        cleared_label_array.append(new_label[0])  # label
+
+        
+        if new_label[0] == "notizia vera":
+            cleared_label_array.append("1")
+        else:
+            cleared_label_array.append("0")
+        
+        #cleared_label_array.append(new_label[0])  # label
         cleared_label_other_info_array.append(new_label[1]) # other info
+        delay_review_array.append(new_delay_review)
 
         # droupout from the array title and labels 
         reduced_dataset['title'][ind] = reduced_dataset['title'][ind][0]
+
+        '''
+        label = reduced_dataset['label'][ind][0]
+        if label == "notizia vera":
+            reduced_dataset['label'][ind] = 1
+        else:
+            reduced_dataset['label'][ind] = 0
+        '''
         reduced_dataset['label'][ind] = reduced_dataset['label'][ind][0]
 
 
@@ -367,9 +402,10 @@ def reduce_and_clear_dataset(data):
     new_dataframe = new_dataframe.assign(title_no_sw_lmt = cleared_title_no_sw_lmt_array)
     new_dataframe = new_dataframe.assign(label = cleared_label_array)
     new_dataframe = new_dataframe.assign(label_other_info = cleared_label_other_info_array)
-
+    new_dataframe = new_dataframe.assign(delay_review = delay_review_array)
 
     # reindex for cosmetics
+    #new_dataframe = new_dataframe.reindex(columns=['title', 'title_no_sw', 'title_no_sw_lmt', 'label', 'label_other_info', 'delay_review'])
     new_dataframe = new_dataframe.reindex(columns=['title', 'title_no_sw', 'title_no_sw_lmt', 'label', 'label_other_info'])
 
     return new_dataframe
@@ -465,11 +501,19 @@ def plot_wordcloud(my_array):
 
 def main():
 
-    print('\navaible path: \nGLOBAL_DIRECTORY0 = "try_folder_scan"      # LOCAL PATH \nGLOBAL_DIRECTORY1 = "C:\\Users\\pc\\Desktop\\dataset thesys project\\try_folder_scan" \nGLOBAL_DIRECTORY2 = "C:\\My Web Sites\\factanews\\facta.news" \nGLOBAL_DIRECTORY3 = "C:\\My Web Sites\\factanews"\nGLOBAL_DIRECTORY4 = "C:\\My Web Sites"  # bigger one\nGLOBAL_DIRECTORY5 = "C:\\misinfo"  ')
-   
-    selected_path_index = int( input("\nselect number for path {0, 1, 2, 3, 4, 5 }: ") )
-    selected_path = DIRECTORY_PATH_ARRAY[selected_path_index]
-    print("\npath selected: " + selected_path)
+    print('\navaible path:')
+
+    for i in range(len(DIRECTORY_PATH_ARRAY)):
+        print("number: {} -> {}".format(str(i), DIRECTORY_PATH_ARRAY[i]))
+
+    selected_path_index = input("\nselect number for path or write the path: ") 
+
+    if len(selected_path_index) > 2:
+        selected_path = selected_path_index
+    else:
+        selected_path = DIRECTORY_PATH_ARRAY[int(selected_path_index)]
+
+    print("\npath selected: " + selected_path) 
 
     start_time = time.time()
 
@@ -480,12 +524,12 @@ def main():
 
     print(total_time)
     
-
+    '''
     print("\ntotal html file examinated: " + str(HTML_EXAMINATED))
     print("total folder scanned: " + str(FOLDER_SCANNED))
     print("total file scanned: " + str(TOTAL_FILE_SCANNED))
     print("total json claim reviewed found: " + str(TOTAL_CLAIM_REVIEW_FILE))
-
+    '''
 
     dataset = create_dataset(html_array)
     dataset_reduced = create_dataset(html_array, True)
@@ -556,6 +600,11 @@ def main():
 
     '''
 
+    print("\ntotal html file examinated: " + str(HTML_EXAMINATED))
+    print("total folder scanned: " + str(FOLDER_SCANNED))
+    print("total file scanned: " + str(TOTAL_FILE_SCANNED))
+    print("total json claim reviewed found: " + str(TOTAL_CLAIM_REVIEW_FILE))
+    print()
     print(plot_time)
     print(total_time)
     print("--- done ---")
