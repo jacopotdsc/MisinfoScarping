@@ -38,12 +38,20 @@ import lda
 GLOBAL_DIRECTORY0 = "try_folder_scan"      # LOCAL PATH
 GLOBAL_DIRECTORY1 = "C:\\Users\\pc\\Desktop\\dataset thesys project\\try_folder_scan" 
 GLOBAL_DIRECTORY2 = "C:\\My Web Sites\\factanews\\facta.news" 
-GLOBAL_DIRECTORY3 = "C:\\My Web Sites\\factanews"
-GLOBAL_DIRECTORY4 = "C:\\My Web Sites"  # bigger one
-GLOBAL_DIRECTORY5 = "C:\\misinfo"  
-GLOBAL_DIRECTORY6 = "C:\\full facta"
+GLOBAL_DIRECTORY3 = "C:\\My Web Sites"  # bigger one
+GLOBAL_DIRECTORY4 = "C:\\siti scaricati"
+GLOBAL_PAGELLA_P  = "C:\\siti scaricati\\pagellapolitica.it"
+GLOBAL_FACTA      = "C:\\siti scaricati\\facta_site"
+GLOBAL_LAVOCE     = "C:\\siti scaricati\\site_lavoceinfo"
+GLOBAL_LAVOCE2    = "C:\\siti scaricati\\www.lavoce.info"
 
-DIRECTORY_PATH_ARRAY= [GLOBAL_DIRECTORY0, GLOBAL_DIRECTORY1, GLOBAL_DIRECTORY2, GLOBAL_DIRECTORY3, GLOBAL_DIRECTORY4, GLOBAL_DIRECTORY5, GLOBAL_DIRECTORY6 ] 
+
+DIRECTORY_PATH_ARRAY= [ GLOBAL_DIRECTORY0, GLOBAL_DIRECTORY1, 
+                        GLOBAL_DIRECTORY2, GLOBAL_DIRECTORY3, 
+                        GLOBAL_DIRECTORY4, GLOBAL_PAGELLA_P,
+                        GLOBAL_FACTA, GLOBAL_LAVOCE, GLOBAL_LAVOCE2
+                        
+                        ] 
 
 # set this variabile to choose to path to analize
 USE_DIRECTORY = GLOBAL_DIRECTORY0
@@ -136,6 +144,11 @@ def make_flat_dict(json_file, new_dict, depth=0):
         value = json_file[key]
         #print("key: " + str(key) + " -> " + str(value))
         
+        '''
+        if key == 'claimReviewed':
+            new_dict[key + str(".0")] = value
+            continue
+        '''
 
         if str(  type(value)  ) == "<class 'dict'>":
             #print("-- dict:  recursion on dict, " + str(type(value)))
@@ -412,6 +425,9 @@ def reduce_and_clear_dataset(data):
 
 # create a dataset
 def create_dataset(data_array, reduced=False):
+    if len(data_array) == 0:
+        return pd.DataFrame([], columns=['title', 'title_no_sw', 'title_no_sw_lmt', 'label', 'label_other_info' ])
+   
     my_dataset = pd.DataFrame(data_array).sort_index(axis=1)
 
     if reduced == False:
@@ -532,12 +548,58 @@ def main():
     '''
 
     dataset = create_dataset(html_array)
-    dataset_reduced = create_dataset(html_array, True)
 
+    new_dataset_reduced = create_dataset(html_array, True)
+
+    dataset_reduced1 = new_dataset_reduced.drop_duplicates()
+    
+
+    dataset_reduced = pd.DataFrame([], columns=['title', 'title_no_sw', 'title_no_sw_lmt', 'label', 'label_other_info' ])
+    for i in range(len(dataset_reduced1)):
+        tuple = dataset_reduced1.iloc[i]
+        dataset_reduced.loc[i] = tuple
+
+    number_of_duplicates = len(new_dataset_reduced) - len(dataset_reduced)
+
+    '''
+    index = 0
+    dataset_reduced = pd.DataFrame([], columns=['title', 'title_no_sw', 'title_no_sw_lmt', 'label', 'label_other_info' ])
+    print("created")
+
+    aux = []
+    for i in range(len(new_dataset_reduced)):
+        tuple = new_dataset_reduced.iloc[i]
+
+        aux.append(tuple)
+
+        print("---")
+        print("test1")
+        test1 = str(dataset_reduced) == str(pd.DataFrame([], columns=['title', 'title_no_sw', 'title_no_sw_lmt', 'label', 'label_other_info' ]))
+        print( test1 )
+
+        print("test2")
+        test2 =  dataset_reduced.count()
+        print(test2)
+        print("-- test fatti")
+
+        if test1 == True:
+            print("-- inserisco: " + str(index))
+            dataset_reduced.loc[index] = tuple
+            index += 1
+        elif test2 == False:
+            continue
+        else:
+            print("-- inserisco: " + str(index))
+            dataset_reduced.loc[index] = tuple
+            index += 1
+
+    print(dataset_reduced)
+    '''
     created = False
     while created == False:
         
         try:
+            
             create_csv(dataset, str(selected_path_index) )
             create_csv(dataset_reduced, str(selected_path_index), True)
         except:
@@ -604,6 +666,10 @@ def main():
     print("total folder scanned: " + str(FOLDER_SCANNED))
     print("total file scanned: " + str(TOTAL_FILE_SCANNED))
     print("total json claim reviewed found: " + str(TOTAL_CLAIM_REVIEW_FILE))
+    print("number of duplicates found: " + str(number_of_duplicates))
+    print("dimension of dataset: " + str(TOTAL_CLAIM_REVIEW_FILE - number_of_duplicates))
+    print("\npath selected: " + selected_path) 
+    print("\index: " + str(selected_path_index))
     print()
     print(plot_time)
     print(total_time)
